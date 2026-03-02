@@ -8,10 +8,10 @@ from uuid import uuid4
 from fastapi import HTTPException
 
 from vault.api.projects import list_projects, update_project, delete_project, refresh_project
+from vault.exceptions import DatabaseError, SymbolNotFoundError, ProjectNotFoundError
 from vault.crawler import ProjectFingerprinter, ProjectScanner
 from vault.parser import TreeSitterParser
 from vault.storage.repositories import ProjectRepository, SymbolRepository
-from vault.exceptions import ProjectNotFoundError, DatabaseError
 
 @pytest.mark.asyncio
 async def test_api_projects_final_gaps():
@@ -270,7 +270,7 @@ async def test_symbol_repository_final_gaps():
         
     # 2. update_todo_status: not found (Line 231-233)
     session.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=lambda: None))
-    with pytest.raises(DatabaseError):
+    with pytest.raises(SymbolNotFoundError):
          await repo.update_todo_status(uuid4(), True)
 
     # 3. update_todo_status: found (Line 234)

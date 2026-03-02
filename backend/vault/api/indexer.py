@@ -164,7 +164,7 @@ async def get_indexing_overview(
         all_projects = await project_repo.get_all(limit=10000)
 
         # Count by status
-        status_counts = {}
+        status_counts: dict[str, int] = {}
         total_projects = len(all_projects)
 
         for project in all_projects:

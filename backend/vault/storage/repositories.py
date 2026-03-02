@@ -34,8 +34,10 @@ class ProjectRepository(BaseRepository):
 
     async def get_by_id(self, project_id: UUID) -> Optional[Project]:
         """Get project by ID."""
+        # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+        project_id_str = str(project_id)
         result = await self.session.execute(
-            select(Project).where(Project.id == project_id)
+            select(Project).where(Project.id == project_id_str)
         )
         return result.scalar_one_or_none()
 
@@ -57,7 +59,9 @@ class ProjectRepository(BaseRepository):
     async def update(self, project_id: UUID, **kwargs) -> Project:
         """Update project fields."""
         try:
-            stmt = update(Project).where(Project.id == project_id).values(**kwargs)
+            # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+            project_id_str = str(project_id)
+            stmt = update(Project).where(Project.id == project_id_str).values(**kwargs)
             await self.session.execute(stmt)
             await self.session.flush()
 
@@ -73,7 +77,9 @@ class ProjectRepository(BaseRepository):
     async def delete(self, project_id: UUID) -> bool:
         """Delete a project and all its symbols."""
         try:
-            stmt = delete(Project).where(Project.id == project_id)
+            # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+            project_id_str = str(project_id)
+            stmt = delete(Project).where(Project.id == project_id_str)
             result = await self.session.execute(stmt)
             return result.rowcount > 0
         except Exception as e:
@@ -125,8 +131,10 @@ class SymbolRepository(BaseRepository):
 
     async def get_by_id(self, symbol_id: UUID) -> Optional[Symbol]:
         """Get symbol by ID."""
+        # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+        symbol_id_str = str(symbol_id)
         result = await self.session.execute(
-            select(Symbol).where(Symbol.id == symbol_id)
+            select(Symbol).where(Symbol.id == symbol_id_str)
         )
         return result.scalar_one_or_none()
 
@@ -138,7 +146,9 @@ class SymbolRepository(BaseRepository):
         offset: int = 0,
     ) -> List[Symbol]:
         """Get symbols for a project, optionally filtered by type."""
-        query = select(Symbol).where(Symbol.project_id == project_id)
+        # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+        project_id_str = str(project_id)
+        query = select(Symbol).where(Symbol.project_id == project_id_str)
 
         if symbol_type:
             query = query.where(Symbol.symbol_type == symbol_type)
@@ -154,9 +164,13 @@ class SymbolRepository(BaseRepository):
 
     async def get_by_file(self, project_id: UUID, file_path: str) -> List[Symbol]:
         """Get all symbols in a specific file."""
+        # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+        project_id_str = str(project_id)
         result = await self.session.execute(
             select(Symbol)
-            .where(and_(Symbol.project_id == project_id, Symbol.file_path == file_path))
+            .where(
+                and_(Symbol.project_id == project_id_str, Symbol.file_path == file_path)
+            )
             .order_by(Symbol.line_start)
         )
         return result.scalars().all()
@@ -165,11 +179,13 @@ class SymbolRepository(BaseRepository):
         self, project_id: UUID, name_pattern: str, limit: int = 100
     ) -> List[Symbol]:
         """Search symbols by name pattern."""
+        # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+        project_id_str = str(project_id)
         result = await self.session.execute(
             select(Symbol)
             .where(
                 and_(
-                    Symbol.project_id == project_id,
+                    Symbol.project_id == project_id_str,
                     Symbol.name.ilike(f"%{name_pattern}%"),
                 )
             )
@@ -180,17 +196,21 @@ class SymbolRepository(BaseRepository):
     async def delete_by_project(self, project_id: UUID) -> int:
         """Delete all symbols for a project."""
         try:
-            stmt = delete(Symbol).where(Symbol.project_id == project_id)
+            # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+            project_id_str = str(project_id)
+            stmt = delete(Symbol).where(Symbol.project_id == project_id_str)
             result = await self.session.execute(stmt)
             return result.rowcount
         except Exception as e:
-            raise DatabaseError(f"Failed to delete symbols: {e}")
+            raise DatabaseError(f"Failed to delete symbols for project: {e}")
 
     async def delete_by_file(self, project_id: UUID, file_path: str) -> int:
         """Delete all symbols in a specific file."""
         try:
+            # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+            project_id_str = str(project_id)
             stmt = delete(Symbol).where(
-                and_(Symbol.project_id == project_id, Symbol.file_path == file_path)
+                and_(Symbol.project_id == project_id_str, Symbol.file_path == file_path)
             )
             result = await self.session.execute(stmt)
             return result.rowcount
@@ -199,9 +219,11 @@ class SymbolRepository(BaseRepository):
 
     async def get_symbols_with_todos(self, project_id: UUID) -> List[Symbol]:
         """Get all symbols that contain TODO comments."""
+        # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+        project_id_str = str(project_id)
         result = await self.session.execute(
             select(Symbol).where(
-                and_(Symbol.project_id == project_id, Symbol.has_todo == True)
+                and_(Symbol.project_id == project_id_str, Symbol.has_todo == True)
             )
         )
         return result.scalars().all()
@@ -209,9 +231,11 @@ class SymbolRepository(BaseRepository):
     async def update_todo_status(self, symbol_id: UUID, has_todo: bool) -> Symbol:
         """Update TODO status of a symbol."""
         try:
+            # Convert UUID to string for comparison since UUIDs are stored as strings in SQLite
+            symbol_id_str = str(symbol_id)
             stmt = (
                 update(Symbol)
-                .where(Symbol.id == symbol_id)
+                .where(Symbol.id == symbol_id_str)
                 .values(has_todo=has_todo)
                 .returning(Symbol)
             )
@@ -220,5 +244,7 @@ class SymbolRepository(BaseRepository):
             if not symbol:
                 raise SymbolNotFoundError(f"Symbol {symbol_id} not found")
             return symbol
+        except SymbolNotFoundError:
+            raise
         except Exception as e:
             raise DatabaseError(f"Failed to update symbol TODO status: {e}")

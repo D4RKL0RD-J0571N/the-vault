@@ -190,7 +190,7 @@ class ProjectDiscoveryService:
         """Get statistics about all discovered projects."""
         all_projects = await self.project_repo.get_all(limit=10000)  # Large limit
 
-        stats = {
+        stats: dict[str, object] = {
             "total_projects": len(all_projects),
             "by_type": {},
             "by_status": {},

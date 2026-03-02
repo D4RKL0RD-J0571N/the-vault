@@ -16,7 +16,7 @@ class TestProjectRepository:
         """Test creating a project."""
         created_project = await project_repo.create(sample_project)
         
-        assert created_project.id == sample_project.id
+        assert str(created_project.id) == str(sample_project.id)
         assert created_project.name == sample_project.name
         assert created_project.path == sample_project.path
         assert created_project.type == sample_project.type
@@ -29,7 +29,7 @@ class TestProjectRepository:
         retrieved_project = await project_repo.get_by_id(sample_project.id)
         
         assert retrieved_project is not None
-        assert retrieved_project.id == sample_project.id
+        assert str(retrieved_project.id) == str(sample_project.id)
         assert retrieved_project.name == sample_project.name
     
     @pytest.mark.asyncio
@@ -167,7 +167,7 @@ class TestSymbolRepository:
         """Test creating a symbol."""
         created_symbol = await symbol_repo.create(sample_symbol)
         
-        assert created_symbol.id == sample_symbol.id
+        assert str(created_symbol.id) == str(sample_symbol.id)
         assert created_symbol.name == sample_symbol.name
         assert created_symbol.symbol_type == sample_symbol.symbol_type
     
@@ -195,7 +195,8 @@ class TestSymbolRepository:
         
         assert len(created_symbols) == 5
         for symbol in created_symbols:
-            assert symbol.project_id == project_id
+            # Convert both to string for comparison since UUIDs are stored as strings in SQLite
+            assert str(symbol.project_id) == str(project_id)
     
     @pytest.mark.asyncio
     async def test_get_symbol_by_id(self, symbol_repo: SymbolRepository, sample_symbol: Symbol):
@@ -205,7 +206,7 @@ class TestSymbolRepository:
         retrieved_symbol = await symbol_repo.get_by_id(sample_symbol.id)
         
         assert retrieved_symbol is not None
-        assert retrieved_symbol.id == sample_symbol.id
+        assert str(retrieved_symbol.id) == str(sample_symbol.id)
         assert retrieved_symbol.name == sample_symbol.name
     
     @pytest.mark.asyncio
@@ -250,7 +251,8 @@ class TestSymbolRepository:
         
         assert len(project_symbols) == 3
         for symbol in project_symbols:
-            assert symbol.project_id == project_id
+            # Convert both to string for comparison since UUIDs are stored as strings in SQLite
+            assert str(symbol.project_id) == str(project_id)
     
     @pytest.mark.asyncio
     async def test_get_symbols_by_type(self, symbol_repo: SymbolRepository):

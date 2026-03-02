@@ -40,21 +40,27 @@ class SymbolExtractor:
 
     def extract_symbols(self, file_path: Path, project_id: str) -> List[Symbol]:
         """Extract symbols from a file."""
+        if not self.parser:
+            return []
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            source_code = f.read()
+
+        if not source_code.strip():
+            return []
+
+        symbols: list[Symbol] = []
+
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-                source_code = f.read()
-
-            if not source_code.strip():
-                return []
-
             tree = self.parser.parse(bytes(source_code, "utf-8"))
-            symbols = []
-
             # Extract symbols using language-specific logic
             self._extract_from_node(
-                tree.root_node, source_code, file_path, project_id, symbols
+                tree.root_node,
+                source_code,
+                file_path,
+                project_id,
+                symbols,
             )
-
             return symbols
 
         except Exception as e:
@@ -475,8 +481,12 @@ class JavaScriptExtractor(SymbolExtractor):
         return None
 
 
-class RenPyExtractor:
+class RenPyExtractor(SymbolExtractor):
     """RenPy symbol extractor (custom implementation)."""
+
+    def __init__(self) -> None:
+        # Don't call parent constructor since RenPy doesn't use tree-sitter
+        pass
 
     def extract_symbols(self, file_path: Path, project_id: str) -> List[Symbol]:
         """Extract symbols from RenPy script using regex."""

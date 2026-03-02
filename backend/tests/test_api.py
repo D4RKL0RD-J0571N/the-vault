@@ -74,8 +74,9 @@ class TestProjectEndpoints:
                 **project_data
             )
             await project_repo.create(project)
+            await temp_db.commit()  # Ensure the project is committed
             
-            # Get project
+            # Get project via API
             response = await client.get(f"/projects/{project.id}")
             
             assert response.status_code == 200

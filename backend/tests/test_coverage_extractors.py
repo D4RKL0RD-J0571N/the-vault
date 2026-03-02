@@ -28,7 +28,10 @@ def test_symbol_extractor_parse_error():
         extractor.parser = MagicMock()
         extractor.parser.parse.side_effect = Exception("Parse Fail")
         
-        with patch("builtins.open", MagicMock()):
+        mock_open = MagicMock()
+        mock_open.return_value.__enter__.return_value.read.return_value = "print('hello')"
+        
+        with patch("builtins.open", mock_open):
             with patch("vault.parser.extractors.Path.exists", return_value=True):
                 # Need to use a real path or patch open correctly
                 with pytest.raises(ParsingError, match="Failed to parse"):

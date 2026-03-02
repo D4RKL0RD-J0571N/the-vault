@@ -129,7 +129,7 @@ class TreeSitterParser:
         symbols = await self.symbol_repo.get_by_project(project_id)
 
         # Count by type
-        symbol_counts = {}
+        symbol_counts: dict[str, int] = {}
         todo_count = 0
 
         for symbol in symbols:
@@ -179,7 +179,7 @@ class TreeSitterParser:
         extractor = get_extractor(language)
 
         # Extract symbols
-        symbols = extractor.extract_symbols(file_path, project_id)
+        symbols = extractor.extract_symbols(file_path, str(project_id))
 
         return symbols
 
@@ -308,7 +308,7 @@ class ParsingService:
                 task = asyncio.create_task(self.parser.parse_project(project_id))
                 self._active_tasks[project_id] = task
                 task.add_done_callback(
-                    lambda t, pid=project_id: self._active_tasks.pop(pid, None)
+                    lambda t: self._active_tasks.pop(project_id, None)
                 )
                 tasks.append(task)
 
@@ -331,7 +331,7 @@ class ParsingService:
         for result in results:
             if isinstance(result, Exception):
                 failed += 1
-            elif result.get("success", False):
+            elif isinstance(result, dict) and result.get("success", False):
                 successful += 1
             else:
                 failed += 1

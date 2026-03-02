@@ -28,13 +28,29 @@ def event_loop():
 @pytest_asyncio.fixture(scope="function")
 async def temp_db() -> AsyncGenerator[AsyncSession, None]:
     """Create a temporary in-memory SQLite database for testing."""
-    # Create in-memory database
+    import sqlite3
+    from uuid import UUID
+    
+    # Create in-memory database with UUID support
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
         echo=False,
         poolclass=StaticPool,
-        connect_args={"check_same_thread": False},
+        connect_args={
+            "check_same_thread": False,
+            "detect_types": sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
+        },
     )
+    
+    # Register UUID adapters for the test database
+    def adapt_uuid(uuid_obj):
+        return str(uuid_obj)
+
+    def convert_uuid(s):
+        return UUID(s)
+
+    sqlite3.register_adapter(UUID, adapt_uuid)
+    sqlite3.register_converter("UUID", convert_uuid)
     
     # Create tables
     async with engine.begin() as conn:
@@ -54,9 +70,22 @@ async def setup_api_dependencies(temp_db: AsyncSession):
     """Override API dependencies to use the test database."""
     async def override_get_db():
         yield temp_db
+    
+    from contextlib import asynccontextmanager
+    
+    @asynccontextmanager
+    async def override_get_db_session():
+        try:
+            yield temp_db
+            await temp_db.commit()
+        except Exception:
+            await temp_db.rollback()
+            raise
+        finally:
+            pass  # Don't close the session, it's managed by the fixture
         
     app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[get_db_session] = override_get_db
+    app.dependency_overrides[get_db_session] = override_get_db_session
     yield
     app.dependency_overrides.clear()
 

@@ -80,7 +80,7 @@ class ProjectFingerprinter:
         """Calculate project metrics: file count, lines of code, language breakdown."""
         file_count = 0
         loc_total = 0
-        language_counts = {}
+        language_counts: dict[str, int] = {}
 
         for root, dirs, files in os.walk(directory):
             # Skip excluded directories
@@ -149,7 +149,7 @@ class ProjectFingerprinter:
 
     def _count_file_extensions(self, directory: Path) -> Dict[str, int]:
         """Count files by programming language."""
-        counts = {}
+        counts: dict[str, int] = {}
 
         for root, dirs, files in os.walk(directory):
             # Skip excluded directories
