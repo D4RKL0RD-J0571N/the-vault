@@ -50,7 +50,16 @@ engine = create_async_engine(
 def set_sqlite_pragma(dbapi_connection, connection_record):
     """Set SQLite pragmas and register UUID type."""
     if "sqlite" in settings.database_url:
-        dbapi_connection.text_factory = str
+        # Get the underlying connection for async adapters
+        if hasattr(dbapi_connection, 'connection'):
+            # aiosqlite async connection wrapper
+            underlying_connection = dbapi_connection.connection
+            if hasattr(underlying_connection, 'text_factory'):
+                underlying_connection.text_factory = str
+        else:
+            # Direct SQLite connection
+            dbapi_connection.text_factory = str
+        
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
