@@ -1,12 +1,12 @@
 """Crawler layer for The Vault application."""
 
 from .fingerprint import ProjectFingerprinter
-from .scanner import ProjectScanner, ProjectDiscoveryService
-from .watcher import FileWatcher, WatcherService, ProjectChangeQueue
+from .scanner import ProjectDiscoveryService, ProjectScanner
+from .watcher import FileWatcher, ProjectChangeQueue, WatcherService
 
 __all__ = [
     "ProjectFingerprinter",
-    "ProjectScanner", 
+    "ProjectScanner",
     "ProjectDiscoveryService",
     "FileWatcher",
     "WatcherService",

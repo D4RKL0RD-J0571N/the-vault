@@ -6,18 +6,21 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, Boolean, Float, JSON
+from sqlalchemy import (JSON, Boolean, DateTime, Float, ForeignKey, Integer,
+                        String, Text)
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
+
     pass
 
 
 class ProjectType(str, Enum):
     """Supported project types."""
+
     UNITY = "unity"
     JAVA = "java"
     PYTHON = "python"
@@ -29,6 +32,7 @@ class ProjectType(str, Enum):
 
 class IndexStatus(str, Enum):
     """Project indexing status."""
+
     PENDING = "pending"
     PARSING = "parsing"
     COMPLETE = "complete"
@@ -37,6 +41,7 @@ class IndexStatus(str, Enum):
 
 class SymbolType(str, Enum):
     """Supported symbol types."""
+
     CLASS = "class"
     METHOD = "method"
     FIELD = "field"
@@ -50,9 +55,9 @@ class SymbolType(str, Enum):
 
 class Project(Base):
     """Represents a development project."""
-    
+
     __tablename__ = "projects"
-    
+
     id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4
     )
@@ -70,25 +75,29 @@ class Project(Base):
         String(20), default=IndexStatus.PENDING
     )
     git_has: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
     )
-    
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
     # Relationships
     symbols: Mapped[list["Symbol"]] = relationship(
         "Symbol", back_populates="project", cascade="all, delete-orphan"
     )
-    
+
     def __repr__(self) -> str:
         return f"<Project(id={self.id}, name={self.name}, type={self.type})>"
 
 
 class Symbol(Base):
     """Represents a code symbol (class, method, etc.) within a project."""
-    
+
     __tablename__ = "symbols"
-    
+
     id: Mapped[UUID] = mapped_column(
         PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4
     )
@@ -105,20 +114,24 @@ class Symbol(Base):
     raw_code: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     content_hash: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     has_todo: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
     )
-    
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
     # Relationships
     project: Mapped["Project"] = relationship("Project", back_populates="symbols")
-    
+
     def __repr__(self) -> str:
         return (
             f"<Symbol(id={self.id}, name={self.name}, type={self.symbol_type}, "
             f"project_id={self.project_id})>"
         )
-    
+
     @staticmethod
     def generate_content_hash(content: str) -> str:
         """Generate MD5 hash for content change detection."""

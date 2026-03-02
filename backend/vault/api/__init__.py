@@ -7,6 +7,6 @@ from .symbols import router as symbols_router
 
 __all__ = [
     "projects_router",
-    "symbols_router", 
+    "symbols_router",
     "indexer_router",
 ]

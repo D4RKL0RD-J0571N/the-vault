@@ -6,18 +6,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.api.schemas import (
-    Symbol,
-    SymbolList,
-    SymbolQuery,
-    SymbolStatisticsResponse,
-)
+from vault.api.schemas import (Symbol, SymbolList, SymbolQuery,
+                               SymbolStatisticsResponse)
 from vault.exceptions import ProjectNotFoundError, SymbolNotFoundError
 from vault.parser import ParsingService
 from vault.storage import get_db
 from vault.storage.models import SymbolType
 from vault.storage.repositories import ProjectRepository, SymbolRepository
-
 
 router = APIRouter(prefix="/symbols", tags=["symbols"])
 
@@ -27,7 +22,9 @@ async def get_symbol_repository(db: AsyncSession = Depends(get_db)) -> SymbolRep
     return SymbolRepository(db)
 
 
-async def get_project_repository(db: AsyncSession = Depends(get_db)) -> ProjectRepository:
+async def get_project_repository(
+    db: AsyncSession = Depends(get_db),
+) -> ProjectRepository:
     """Dependency to get project repository."""
     return ProjectRepository(db)
 
@@ -59,40 +56,38 @@ async def get_project_symbols(
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
 
-
-        
         # Get symbols
         symbols = await symbol_repo.get_by_project(
-            project_id, 
+            project_id,
             symbol_type=symbol_type,
             limit=page_size,
-            offset=(page - 1) * page_size
+            offset=(page - 1) * page_size,
         )
-        
+
         # Apply additional filters
         if file_path:
             symbols = [s for s in symbols if s.file_path == file_path]
-        
+
         if search:
             search_lower = search.lower()
             symbols = [s for s in symbols if search_lower in s.name.lower()]
-        
+
         if has_todo is not None:
             symbols = [s for s in symbols if s.has_todo == has_todo]
-        
+
         # Apply pagination
         total = len(symbols)
         start_idx = (page - 1) * page_size
         end_idx = start_idx + page_size
         paginated_symbols = symbols[start_idx:end_idx]
-        
+
         return SymbolList(
             symbols=paginated_symbols,
             total=total,
             page=page,
             page_size=page_size,
         )
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -114,10 +109,10 @@ async def get_file_symbols(
         project = await project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         symbols = await symbol_repo.get_by_file(project_id, file_path)
         return symbols
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -140,10 +135,10 @@ async def search_symbols(
         project = await project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         symbols = await symbol_repo.search_by_name(project_id, query, limit)
         return symbols
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -164,10 +159,10 @@ async def get_symbols_with_todos(
         project = await project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         symbols = await symbol_repo.get_symbols_with_todos(project_id)
         return symbols
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -186,9 +181,9 @@ async def get_symbol(
         symbol = await symbol_repo.get_by_id(symbol_id)
         if not symbol:
             raise HTTPException(status_code=404, detail="Symbol not found")
-        
+
         return symbol
-        
+
     except HTTPException:
         raise
     except SymbolNotFoundError:
@@ -205,11 +200,13 @@ async def get_symbol_statistics(
     """Get symbol statistics for a project."""
     try:
         stats = await parsing_service.parser.get_parsing_statistics(project_id)
-        
+
         return SymbolStatisticsResponse(**stats)
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get symbol statistics: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get symbol statistics: {e}"
+        )
 
 
 @router.delete("/project/{project_id}")
@@ -224,14 +221,14 @@ async def delete_project_symbols(
         project = await project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         deleted_count = await symbol_repo.delete_by_project(project_id)
-        
+
         return {
             "message": f"Deleted {deleted_count} symbols for project {project_id}",
             "deleted_count": deleted_count,
         }
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -253,17 +250,19 @@ async def delete_file_symbols(
         project = await project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         deleted_count = await symbol_repo.delete_by_file(project_id, file_path)
-        
+
         return {
             "message": f"Deleted {deleted_count} symbols in file {file_path}",
             "deleted_count": deleted_count,
         }
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
         raise HTTPException(status_code=404, detail="Project not found")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete file symbols: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete file symbols: {e}"
+        )

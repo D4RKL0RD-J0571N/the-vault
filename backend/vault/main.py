@@ -6,9 +6,9 @@ from datetime import datetime, timezone
 
 import structlog
 from fastapi import FastAPI, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 
 from vault.api import indexer_router, projects_router, symbols_router
 from vault.api.schemas import ErrorResponse, HealthResponse
@@ -16,8 +16,6 @@ from vault.config import settings
 from vault.exceptions import VaultError
 from vault.storage import init_db
 from vault.storage.repositories import ProjectRepository
-
-
 
 # Configure structured logging
 structlog.configure(
@@ -30,8 +28,11 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer() if settings.environment == "production"
-        else structlog.dev.ConsoleRenderer(),
+        (
+            structlog.processors.JSONRenderer()
+            if settings.environment == "production"
+            else structlog.dev.ConsoleRenderer()
+        ),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -47,21 +48,21 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
     logger.info("Starting The Vault API server")
-    
+
     try:
         # Initialize database
         await init_db()
         logger.info("Database initialized successfully")
-        
+
         # TODO: Start file watcher if configured
         # TODO: Initialize other services
-        
+
         yield
-        
+
     except Exception as e:
         logger.error("Failed to initialize application", error=str(e))
         raise
-    
+
     # Shutdown
     logger.info("Shutting down The Vault API server")
     # TODO: Cleanup services
@@ -97,7 +98,7 @@ async def vault_exception_handler(request, exc: VaultError):
         details=exc.details,
         path=request.url.path,
     )
-    
+
     return JSONResponse(
         status_code=500,
         content=jsonable_encoder(
@@ -119,7 +120,7 @@ async def http_exception_handler(request, exc: HTTPException):
         detail=exc.detail,
         path=request.url.path,
     )
-    
+
     return JSONResponse(
         status_code=exc.status_code,
         content=jsonable_encoder(
@@ -140,7 +141,7 @@ async def general_exception_handler(request, exc: Exception):
         exc_info=True,
         path=request.url.path,
     )
-    
+
     return JSONResponse(
         status_code=500,
         content=jsonable_encoder(
@@ -184,40 +185,39 @@ async def root():
 async def cli():
     """Command-line interface for The Vault."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="The Vault - AI-powered code archaeology")
+
+    parser = argparse.ArgumentParser(
+        description="The Vault - AI-powered code archaeology"
+    )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
+
     # Scan command
     scan_parser = subparsers.add_parser("scan", help="Scan directories for projects")
     scan_parser.add_argument(
-        "directories", 
-        nargs="*", 
-        help="Directories to scan (optional, uses configured directories if not provided)"
+        "directories",
+        nargs="*",
+        help="Directories to scan (optional, uses configured directories if not provided)",
     )
     scan_parser.add_argument(
-        "--output", 
-        choices=["json", "table"], 
-        default="table",
-        help="Output format"
+        "--output", choices=["json", "table"], default="table", help="Output format"
     )
-    
+
     # Serve command
     serve_parser = subparsers.add_parser("serve", help="Start the API server")
     serve_parser.add_argument(
-        "--host", 
+        "--host",
         default=settings.api_host,
-        help=f"Host to bind to (default: {settings.api_host})"
+        help=f"Host to bind to (default: {settings.api_host})",
     )
     serve_parser.add_argument(
-        "--port", 
-        type=int, 
+        "--port",
+        type=int,
         default=settings.api_port,
-        help=f"Port to bind to (default: {settings.api_port})"
+        help=f"Port to bind to (default: {settings.api_port})",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.command == "scan":
         await run_scan_command(args)
     elif args.command == "serve":
@@ -230,13 +230,13 @@ async def run_scan_command(args):
     """Run the scan command."""
     from vault.crawler import ProjectDiscoveryService
     from vault.storage import get_db_session
-    
+
     logger.info("Starting project scan")
-    
+
     async with get_db_session() as db:
         project_repo = ProjectRepository(db)
         discovery_service = ProjectDiscoveryService(project_repo)
-        
+
         if args.directories:
             # Scan specific directories
             results = []
@@ -247,38 +247,51 @@ async def run_scan_command(args):
                     print(f"Scanned {directory}: {result['discovered_count']} projects")
                 else:
                     print(f"Error scanning {directory}: {result['error']}")
-            
+
             print(f"\nTotal projects discovered: {len(results)}")
-            
+
             if args.output == "json":
                 import json
-                print(json.dumps([{
-                    "name": p.name,
-                    "type": p.type.value,
-                    "path": p.path,
-                    "files": p.file_count,
-                    "loc": p.loc_total,
-                } for p in results], indent=2))
+
+                print(
+                    json.dumps(
+                        [
+                            {
+                                "name": p.name,
+                                "type": p.type.value,
+                                "path": p.path,
+                                "files": p.file_count,
+                                "loc": p.loc_total,
+                            }
+                            for p in results
+                        ],
+                        indent=2,
+                    )
+                )
             else:
                 for project in results:
-                    print(f"  {project.name} ({project.type.value}) - {project.file_count} files, {project.loc_total} LOC")
-        
+                    print(
+                        f"  {project.name} ({project.type.value}) - {project.file_count} files, {project.loc_total} LOC"
+                    )
+
         else:
             # Scan configured directories
             result = await discovery_service.discover_all_projects()
             print(f"Discovered {result['discovered_count']} projects")
-            
+
             if args.output == "table":
                 for project in result["projects"]:
-                    print(f"  {project.name} ({project.type.value}) - {project.file_count} files, {project.loc_total} LOC")
+                    print(
+                        f"  {project.name} ({project.type.value}) - {project.file_count} files, {project.loc_total} LOC"
+                    )
 
 
 async def run_serve_command(args):
     """Run the serve command."""
     import uvicorn
-    
+
     logger.info(f"Starting server on {args.host}:{args.port}")
-    
+
     config = uvicorn.Config(
         app,
         host=args.host,
@@ -286,7 +299,7 @@ async def run_serve_command(args):
         log_level=settings.log_level.lower(),
         access_log=True,
     )
-    
+
     server = uvicorn.Server(config)
     await server.serve()
 

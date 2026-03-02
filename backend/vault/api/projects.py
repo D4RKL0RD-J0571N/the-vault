@@ -6,33 +6,27 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.api.schemas import (
-    Project,
-    ProjectCreate,
-    ProjectList,
-    ProjectQuery,
-    ProjectUpdate,
-    ScanRequest,
-    ScanResponse,
-    StatisticsResponse,
-)
+from vault.api.schemas import (Project, ProjectCreate, ProjectList,
+                               ProjectQuery, ProjectUpdate, ScanRequest,
+                               ScanResponse, StatisticsResponse)
 from vault.crawler import ProjectDiscoveryService
 from vault.exceptions import ProjectNotFoundError
 from vault.storage import get_db
-from vault.storage.models import ProjectType, IndexStatus
+from vault.storage.models import IndexStatus, ProjectType
 from vault.storage.repositories import ProjectRepository
-
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 
-async def get_project_repository(db: AsyncSession = Depends(get_db)) -> ProjectRepository:
+async def get_project_repository(
+    db: AsyncSession = Depends(get_db),
+) -> ProjectRepository:
     """Dependency to get project repository."""
     return ProjectRepository(db)
 
 
 async def get_discovery_service(
-    project_repo: ProjectRepository = Depends(get_project_repository)
+    project_repo: ProjectRepository = Depends(get_project_repository),
 ) -> ProjectDiscoveryService:
     """Dependency to get project discovery service."""
     return ProjectDiscoveryService(project_repo)
@@ -40,8 +34,12 @@ async def get_discovery_service(
 
 @router.get("/", response_model=ProjectList)
 async def list_projects(
-    project_type: Optional[ProjectType] = Query(None, alias="type", description="Filter by project type"),
-    status: Optional[IndexStatus] = Query(None, description="Filter by indexing status"),
+    project_type: Optional[ProjectType] = Query(
+        None, alias="type", description="Filter by project type"
+    ),
+    status: Optional[IndexStatus] = Query(
+        None, description="Filter by indexing status"
+    ),
     search: str = Query(None, description="Search in project names"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(100, ge=1, le=1000, description="Items per page"),
@@ -56,25 +54,25 @@ async def list_projects(
             projects = await project_repo.get_by_status(status)
         else:
             projects = await project_repo.get_all()
-        
+
         # Apply search filter if provided
         if search:
             search_lower = search.lower()
             projects = [p for p in projects if search_lower in p.name.lower()]
-        
+
         # Apply pagination
         total = len(projects)
         start_idx = (page - 1) * page_size
         end_idx = start_idx + page_size
         paginated_projects = projects[start_idx:end_idx]
-        
+
         return ProjectList(
             projects=paginated_projects,
             total=total,
             page=page,
             page_size=page_size,
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -91,9 +89,9 @@ async def get_project(
         project = await project_repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         return project
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -113,13 +111,13 @@ async def scan_projects(
             # Scan specific directories
             results = []
             total_discovered = 0
-            
+
             for root_dir in request.root_directories:
                 result = await discovery_service.scan_specific_path(root_dir)
                 if result["success"]:
                     results.extend(result["projects"])
                     total_discovered += result["discovered_count"]
-            
+
             return ScanResponse(
                 success=True,
                 discovered_count=total_discovered,
@@ -128,13 +126,13 @@ async def scan_projects(
         else:
             # Scan all configured directories
             result = await discovery_service.discover_all_projects()
-            
+
             return ScanResponse(
                 success=True,
                 discovered_count=result["discovered_count"],
                 projects=result["projects"],
             )
-            
+
     except Exception as e:
         return ScanResponse(
             success=False,
@@ -154,13 +152,13 @@ async def update_project(
     try:
         # Filter out None values
         update_data = project_update.model_dump(exclude_unset=True)
-        
+
         if not update_data:
             raise HTTPException(status_code=400, detail="No fields to update")
-        
+
         updated_project = await project_repo.update(project_id, **update_data)
         return updated_project
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -179,9 +177,9 @@ async def delete_project(
         success = await project_repo.delete(project_id)
         if not success:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         return {"message": "Project deleted successfully"}
-        
+
     except HTTPException:
         raise
     except ProjectNotFoundError:
@@ -197,9 +195,9 @@ async def get_project_statistics(
     """Get overall project statistics."""
     try:
         stats = await discovery_service.get_project_statistics()
-        
+
         return StatisticsResponse(**stats)
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get statistics: {e}")
 
@@ -214,12 +212,10 @@ async def refresh_project(
         # This would need to be implemented in the discovery service
         # For now, we'll return an error
         raise HTTPException(
-            status_code=501, 
-            detail="Project refresh not yet implemented"
+            status_code=501, detail="Project refresh not yet implemented"
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to refresh project: {e}")
-

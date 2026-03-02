@@ -3,19 +3,21 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 from sqlalchemy.pool import StaticPool
 
 from vault.config import settings
 from vault.storage.models import Base
-
 
 # Create async engine
 engine = create_async_engine(
     settings.database_url.replace("sqlite:///", "sqlite+aiosqlite:///"),
     echo=settings.environment == "development",
     poolclass=StaticPool,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {},
+    connect_args=(
+        {"check_same_thread": False} if "sqlite" in settings.database_url else {}
+    ),
 )
 
 # Create session factory
