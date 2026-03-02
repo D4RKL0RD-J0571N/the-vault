@@ -1,0 +1,49 @@
+# The Vault - Backend Dependencies
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.13.1
+
+# Async HTTP
+httpx==0.25.2
+aiofiles==23.2.1
+
+# Tree-sitter Parsing
+tree-sitter==0.20.4
+tree-sitter-python==0.20.4
+tree-sitter-javascript==0.20.1
+tree-sitter-typescript==0.20.3
+tree-sitter-java==0.20.2
+tree-sitter-c-sharp==0.20.0
+
+# Vector Database (Qdrant)
+qdrant-client==1.7.0
+
+# Embeddings (for future AI integration)
+# Note: nomic-embed-text will be used via Ollama, not direct Python package
+
+# Logging
+structlog==23.2.0
+
+# Development Dependencies
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-asyncio==0.21.1
+
+# Code Quality
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Environment Management
+python-dotenv==1.0.0
+
+# Optional: For development with hot reload
+watchfiles==0.21.0

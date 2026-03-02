@@ -26,7 +26,6 @@ jobs:
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov
 
     - name: Run tests with coverage
       run: |
@@ -55,7 +54,6 @@ jobs:
         cd backend
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install flake8 black isort mypy
 
     - name: Lint with flake8
       run: |
