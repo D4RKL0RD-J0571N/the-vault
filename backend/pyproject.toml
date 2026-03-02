@@ -91,9 +91,13 @@ strict_equality = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --cov=vault --cov-report=term-missing"
+addopts = "-ra -q --cov=vault --cov-report=term-missing -x --tb=short --maxfail=5 --disable-warnings"
 testpaths = ["tests"]
 asyncio_mode = "auto"
+# Speed optimizations
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
 [tool.coverage.run]
 source = ["vault"]

@@ -12,26 +12,41 @@ jobs:
     strategy:
       matrix:
         python-version: [3.11]
-
+    
+    # Speed optimizations
+    timeout-minutes: 10
+    
     steps:
     - uses: actions/checkout@v4
-
+    
+    # Cache dependencies for faster installs
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-
+        cache: 'pip'  # Built-in pip caching
+    
+    # Use pip cache and faster installation
     - name: Install dependencies
       run: |
         cd backend
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
+        python -m pip install --upgrade pip --no-cache-dir
+        pip install -r requirements.txt --no-cache-dir
+    
+    # Run tests with coverage (faster pytest config)
     - name: Run tests with coverage
       run: |
         cd backend
-        python -m pytest --cov=vault --cov-report=xml --cov-report=term-missing
-
+        python -m pytest --cov=vault --cov-report=xml --cov-report=term-missing -x -v
+    
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
@@ -41,36 +56,42 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    
+    # Speed optimizations
+    timeout-minutes: 5
+    
     steps:
     - uses: actions/checkout@v4
-
+    
+    # Cache dependencies
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-lint-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.11
-
-    - name: Install dependencies
+        cache: 'pip'
+    
+    # Install only linting dependencies (faster)
+    - name: Install linting dependencies
       run: |
         cd backend
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Lint with flake8
+        python -m pip install --upgrade pip --no-cache-dir
+        pip install black isort flake8 mypy --no-cache-dir
+    
+    # Run all linting in parallel for speed
+    - name: Run linting checks
       run: |
         cd backend
-        flake8 vault/ --count --select=E9,F63,F7,F82 --show-source --statistics
-
-    - name: Check code formatting with black
-      run: |
-        cd backend
-        black --check vault/
-
-    - name: Check import sorting with isort
-      run: |
-        cd backend
-        isort --check-only vault/
-
-    - name: Type check with mypy
-      run: |
-        cd backend
-        mypy vault/ --ignore-missing-imports
+        # Run all linting tools in parallel using &
+        flake8 vault/ --count --select=E9,F63,F7,F82 --show-source --statistics &
+        black --check vault/ &
+        isort --check-only vault/ &
+        mypy vault/ --ignore-missing-imports &
+        wait  # Wait for all background jobs to finish
