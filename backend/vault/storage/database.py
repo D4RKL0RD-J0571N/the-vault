@@ -46,7 +46,7 @@ engine = create_async_engine(
 )
 
 
-@event.listens_for(engine, "connect")
+@event.listens_for(engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     """Set SQLite pragmas and register UUID type."""
     if "sqlite" in settings.database_url:
