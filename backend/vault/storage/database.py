@@ -1,8 +1,11 @@
 """Database connection and session management for The Vault application."""
 
+import sqlite3
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+from uuid import UUID
 
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 from sqlalchemy.pool import StaticPool
@@ -10,13 +13,45 @@ from sqlalchemy.pool import StaticPool
 from vault.config import settings
 from vault.storage.models import Base
 
+
+# Custom UUID type handler for SQLite
+def adapt_uuid(uuid_obj):
+    """Convert UUID to string for SQLite."""
+    return str(uuid_obj)
+
+
+def convert_uuid(s):
+    """Convert string back to UUID from SQLite."""
+    return UUID(s)
+
+
+# Register the adapters
+sqlite3.register_adapter(UUID, adapt_uuid)
+sqlite3.register_converter("UUID", convert_uuid)
+
+
+@event.listens_for(engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Set SQLite pragmas and register UUID type."""
+    if "sqlite" in settings.database_url:
+        dbapi_connection.text_factory = str
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+
 # Create async engine
 engine = create_async_engine(
     settings.database_url.replace("sqlite:///", "sqlite+aiosqlite:///"),
     echo=settings.environment == "development",
     poolclass=StaticPool,
     connect_args=(
-        {"check_same_thread": False} if "sqlite" in settings.database_url else {}
+        {
+            "check_same_thread": False,
+            "detect_types": sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES,
+        }
+        if "sqlite" in settings.database_url
+        else {}
     ),
 )
 
