@@ -6,10 +6,8 @@ from uuid import UUID
 from sqlalchemy import and_, delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.exceptions import (DatabaseError, ProjectNotFoundError,
-                              SymbolNotFoundError)
-from vault.storage.models import (IndexStatus, Project, ProjectType, Symbol,
-                                  SymbolType)
+from vault.exceptions import DatabaseError, ProjectNotFoundError, SymbolNotFoundError
+from vault.storage.models import IndexStatus, Project, ProjectType, Symbol, SymbolType
 
 
 class BaseRepository:

@@ -6,8 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.api.schemas import (Symbol, SymbolList, SymbolQuery,
-                               SymbolStatisticsResponse)
+from vault.api.schemas import Symbol, SymbolList, SymbolQuery, SymbolStatisticsResponse
 from vault.exceptions import ProjectNotFoundError, SymbolNotFoundError
 from vault.parser import ParsingService
 from vault.storage import get_db

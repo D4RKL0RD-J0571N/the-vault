@@ -6,9 +6,16 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.api.schemas import (Project, ProjectCreate, ProjectList,
-                               ProjectQuery, ProjectUpdate, ScanRequest,
-                               ScanResponse, StatisticsResponse)
+from vault.api.schemas import (
+    Project,
+    ProjectCreate,
+    ProjectList,
+    ProjectQuery,
+    ProjectUpdate,
+    ScanRequest,
+    ScanResponse,
+    StatisticsResponse,
+)
 from vault.crawler import ProjectDiscoveryService
 from vault.exceptions import ProjectNotFoundError
 from vault.storage import get_db

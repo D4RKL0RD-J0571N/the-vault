@@ -13,11 +13,15 @@ except ImportError:
     from tree_sitter_language_pack import get_language, get_parser
 
 from vault.exceptions import ParsingError
-from vault.parser.symbol_types import (SymbolType, build_qualified_name,
-                                       detect_todo_comments, extract_signature,
-                                       get_method_visibility,
-                                       is_constant_symbol,
-                                       normalize_symbol_type)
+from vault.parser.symbol_types import (
+    SymbolType,
+    build_qualified_name,
+    detect_todo_comments,
+    extract_signature,
+    get_method_visibility,
+    is_constant_symbol,
+    normalize_symbol_type,
+)
 from vault.storage.models import Symbol
 
 
