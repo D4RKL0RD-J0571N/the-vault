@@ -30,16 +30,6 @@ sqlite3.register_adapter(UUID, adapt_uuid)
 sqlite3.register_converter("UUID", convert_uuid)
 
 
-@event.listens_for(engine, "connect")
-def set_sqlite_pragma(dbapi_connection, connection_record):
-    """Set SQLite pragmas and register UUID type."""
-    if "sqlite" in settings.database_url:
-        dbapi_connection.text_factory = str
-        cursor = dbapi_connection.cursor()
-        cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.close()
-
-
 # Create async engine
 engine = create_async_engine(
     settings.database_url.replace("sqlite:///", "sqlite+aiosqlite:///"),
@@ -54,6 +44,17 @@ engine = create_async_engine(
         else {}
     ),
 )
+
+
+@event.listens_for(engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Set SQLite pragmas and register UUID type."""
+    if "sqlite" in settings.database_url:
+        dbapi_connection.text_factory = str
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
 
 # Create session factory
 AsyncSessionLocal = async_sessionmaker(
