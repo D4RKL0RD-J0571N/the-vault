@@ -58,6 +58,7 @@ class TestCSharpExtractor:
     
     def test_extract_interface_symbols(self, temp_project_dir: Path, csharp_sample_files: dict[str, str]):
         """Test extracting C# interface symbols."""
+        skip_if_parser_unavailable(CSharpExtractor, "csharp")
         test_file = temp_project_dir / "IInterface.cs"
         test_file.write_text(csharp_sample_files["IInterface.cs"])
         
@@ -70,6 +71,7 @@ class TestCSharpExtractor:
     
     def test_extract_constant_symbols(self, temp_project_dir: Path, csharp_sample_files: dict[str, str]):
         """Test extracting C# constant symbols."""
+        skip_if_parser_unavailable(CSharpExtractor, "csharp")
         test_file = temp_project_dir / "Constants.cs"
         test_file.write_text(csharp_sample_files["Constants.cs"])
         
@@ -85,6 +87,7 @@ class TestCSharpExtractor:
     
     def test_detect_todo_comments(self, temp_project_dir: Path, csharp_sample_files: dict[str, str]):
         """Test detecting TODO comments in C# code."""
+        skip_if_parser_unavailable(CSharpExtractor, "csharp")
         test_file = temp_project_dir / "TestClass.cs"
         test_file.write_text(csharp_sample_files["TestClass.cs"])
         
@@ -130,6 +133,7 @@ class TestJavaExtractor:
     
     def test_extract_interface_symbols(self, temp_project_dir: Path, java_sample_files: dict[str, str]):
         """Test extracting Java interface symbols."""
+        skip_if_parser_unavailable(JavaExtractor, "java")
         test_file = temp_project_dir / "Interface.java"
         test_file.write_text(java_sample_files["Interface.java"])
         
@@ -142,6 +146,7 @@ class TestJavaExtractor:
     
     def test_extract_constant_symbols(self, temp_project_dir: Path, java_sample_files: dict[str, str]):
         """Test extracting Java constant symbols."""
+        skip_if_parser_unavailable(JavaExtractor, "java")
         test_file = temp_project_dir / "Constants.java"
         test_file.write_text(java_sample_files["Constants.java"])
         
@@ -185,6 +190,7 @@ class TestPythonExtractor:
     
     def test_detect_constants(self, temp_project_dir: Path, python_sample_files: dict[str, str]):
         """Test detecting Python constants."""
+        skip_if_parser_unavailable(PythonExtractor, "python")
         test_file = temp_project_dir / "constants.py"
         test_file.write_text(python_sample_files["constants.py"])
         
@@ -224,6 +230,7 @@ class TestJavaScriptExtractor:
     
     def test_extract_function_symbols(self, temp_project_dir: Path, javascript_sample_files: dict[str, str]):
         """Test extracting JavaScript function symbols."""
+        skip_if_parser_unavailable(JavaScriptExtractor, "javascript")
         test_file = temp_project_dir / "TestClass.js"
         test_file.write_text(javascript_sample_files["TestClass.js"])
         
@@ -273,6 +280,7 @@ class TestExtractorFactory:
     
     def test_get_csharp_extractor(self):
         """Test getting C# extractor."""
+        skip_if_parser_unavailable(CSharpExtractor, "csharp")
         extractor = get_extractor("csharp")
         assert isinstance(extractor, CSharpExtractor)
         
@@ -281,16 +289,19 @@ class TestExtractorFactory:
     
     def test_get_java_extractor(self):
         """Test getting Java extractor."""
+        skip_if_parser_unavailable(JavaExtractor, "java")
         extractor = get_extractor("java")
         assert isinstance(extractor, JavaExtractor)
     
     def test_get_python_extractor(self):
         """Test getting Python extractor."""
+        skip_if_parser_unavailable(PythonExtractor, "python")
         extractor = get_extractor("python")
         assert isinstance(extractor, PythonExtractor)
     
     def test_get_javascript_extractor(self):
         """Test getting JavaScript extractor."""
+        skip_if_parser_unavailable(JavaScriptExtractor, "javascript")
         extractor = get_extractor("javascript")
         assert isinstance(extractor, JavaScriptExtractor)
         
