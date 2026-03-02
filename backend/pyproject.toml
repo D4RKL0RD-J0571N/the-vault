@@ -112,3 +112,9 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
 ]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+force_single_line = true
+known_first_party = ["vault"]

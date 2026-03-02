@@ -2,16 +2,21 @@
 
 import asyncio
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 
 import structlog
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from vault.api import indexer_router, projects_router, symbols_router
-from vault.api.schemas import ErrorResponse, HealthResponse
+from vault.api import indexer_router
+from vault.api import projects_router
+from vault.api import symbols_router
+from vault.api.schemas import ErrorResponse
+from vault.api.schemas import HealthResponse
 from vault.config import settings
 from vault.exceptions import VaultError
 from vault.storage import init_db

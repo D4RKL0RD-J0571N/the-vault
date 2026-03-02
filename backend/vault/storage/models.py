@@ -1,14 +1,26 @@
 """SQLAlchemy database models for The Vault application."""
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from enum import Enum
 from typing import Optional
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid import uuid4
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON
+from sqlalchemy import Boolean
+from sqlalchemy import DateTime
+from sqlalchemy import Float
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
 
 # SQLite-compatible UUID type
 UUIDType = String(36)  # Store UUID as string for SQLite compatibility

@@ -1,13 +1,23 @@
 """Repository pattern for database operations."""
 
-from typing import List, Optional
+from typing import List
+from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import and_, delete, select, update
+from sqlalchemy import and_
+from sqlalchemy import delete
+from sqlalchemy import select
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.exceptions import DatabaseError, ProjectNotFoundError, SymbolNotFoundError
-from vault.storage.models import IndexStatus, Project, ProjectType, Symbol, SymbolType
+from vault.exceptions import DatabaseError
+from vault.exceptions import ProjectNotFoundError
+from vault.exceptions import SymbolNotFoundError
+from vault.storage.models import IndexStatus
+from vault.storage.models import Project
+from vault.storage.models import ProjectType
+from vault.storage.models import Symbol
+from vault.storage.models import SymbolType
 
 
 class BaseRepository:

@@ -1,7 +1,8 @@
 """Symbol type definitions and normalization for The Vault parser."""
 
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict
+from typing import Optional
 
 
 class SymbolType(str, Enum):

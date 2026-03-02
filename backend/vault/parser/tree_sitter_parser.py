@@ -2,15 +2,20 @@
 
 import asyncio
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict
+from typing import List
+from typing import Optional
 from uuid import UUID
 
 from vault.config import settings
 from vault.crawler.fingerprint import ProjectFingerprinter
 from vault.exceptions import ParsingError
 from vault.parser.extractors import get_extractor
-from vault.storage.models import IndexStatus, Project, Symbol
-from vault.storage.repositories import ProjectRepository, SymbolRepository
+from vault.storage.models import IndexStatus
+from vault.storage.models import Project
+from vault.storage.models import Symbol
+from vault.storage.repositories import ProjectRepository
+from vault.storage.repositories import SymbolRepository
 
 
 class TreeSitterParser:

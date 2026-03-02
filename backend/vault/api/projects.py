@@ -1,25 +1,28 @@
 """FastAPI routes for project management."""
 
-from typing import List, Optional
+from typing import List
+from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.api.schemas import (
-    Project,
-    ProjectCreate,
-    ProjectList,
-    ProjectQuery,
-    ProjectUpdate,
-    ScanRequest,
-    ScanResponse,
-    StatisticsResponse,
-)
+from vault.api.schemas import Project
+from vault.api.schemas import ProjectCreate
+from vault.api.schemas import ProjectList
+from vault.api.schemas import ProjectQuery
+from vault.api.schemas import ProjectUpdate
+from vault.api.schemas import ScanRequest
+from vault.api.schemas import ScanResponse
+from vault.api.schemas import StatisticsResponse
 from vault.crawler import ProjectDiscoveryService
 from vault.exceptions import ProjectNotFoundError
 from vault.storage import get_db
-from vault.storage.models import IndexStatus, ProjectType
+from vault.storage.models import IndexStatus
+from vault.storage.models import ProjectType
 from vault.storage.repositories import ProjectRepository
 
 router = APIRouter(prefix="/projects", tags=["projects"])

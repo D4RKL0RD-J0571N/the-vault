@@ -1,9 +1,13 @@
 """Project fingerprinting and type detection logic."""
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 from vault.config import settings
 from vault.storage.models import ProjectType

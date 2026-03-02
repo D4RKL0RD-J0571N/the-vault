@@ -3,15 +3,23 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from vault.api.schemas import Symbol, SymbolList, SymbolQuery, SymbolStatisticsResponse
-from vault.exceptions import ProjectNotFoundError, SymbolNotFoundError
+from vault.api.schemas import Symbol
+from vault.api.schemas import SymbolList
+from vault.api.schemas import SymbolQuery
+from vault.api.schemas import SymbolStatisticsResponse
+from vault.exceptions import ProjectNotFoundError
+from vault.exceptions import SymbolNotFoundError
 from vault.parser import ParsingService
 from vault.storage import get_db
 from vault.storage.models import SymbolType
-from vault.storage.repositories import ProjectRepository, SymbolRepository
+from vault.storage.repositories import ProjectRepository
+from vault.storage.repositories import SymbolRepository
 
 router = APIRouter(prefix="/symbols", tags=["symbols"])
 

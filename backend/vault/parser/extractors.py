@@ -2,26 +2,28 @@
 
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
 from uuid import uuid4
 
 import tree_sitter
 
 try:
-    from tree_sitter_languages import get_language, get_parser
+    from tree_sitter_languages import get_language
+    from tree_sitter_languages import get_parser
 except ImportError:
     from tree_sitter_language_pack import get_language, get_parser
 
 from vault.exceptions import ParsingError
-from vault.parser.symbol_types import (
-    SymbolType,
-    build_qualified_name,
-    detect_todo_comments,
-    extract_signature,
-    get_method_visibility,
-    is_constant_symbol,
-    normalize_symbol_type,
-)
+from vault.parser.symbol_types import SymbolType
+from vault.parser.symbol_types import build_qualified_name
+from vault.parser.symbol_types import detect_todo_comments
+from vault.parser.symbol_types import extract_signature
+from vault.parser.symbol_types import get_method_visibility
+from vault.parser.symbol_types import is_constant_symbol
+from vault.parser.symbol_types import normalize_symbol_type
 from vault.storage.models import Symbol
 
 

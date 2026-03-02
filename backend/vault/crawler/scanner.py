@@ -3,12 +3,18 @@
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-from uuid import UUID, uuid4
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from uuid import UUID
+from uuid import uuid4
 
 from vault.config import settings
 from vault.crawler.fingerprint import ProjectFingerprinter
-from vault.storage.models import IndexStatus, Project, ProjectType
+from vault.storage.models import IndexStatus
+from vault.storage.models import Project
+from vault.storage.models import ProjectType
 from vault.storage.repositories import ProjectRepository
 
 

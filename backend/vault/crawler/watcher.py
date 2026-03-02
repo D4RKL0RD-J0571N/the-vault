@@ -2,9 +2,11 @@
 
 import asyncio
 from pathlib import Path
-from typing import Callable, Set
+from typing import Callable
+from typing import Set
 
-from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.events import FileSystemEvent
+from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from vault.config import settings
