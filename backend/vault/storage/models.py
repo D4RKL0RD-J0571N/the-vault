@@ -11,6 +11,9 @@ from sqlalchemy import (JSON, Boolean, DateTime, Float, ForeignKey, Integer,
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+# SQLite-compatible UUID type
+UUIDType = String(36)  # Store UUID as string for SQLite compatibility
+
 
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
@@ -58,9 +61,7 @@ class Project(Base):
 
     __tablename__ = "projects"
 
-    id: Mapped[UUID] = mapped_column(
-        PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(UUIDType, primary_key=True, default=uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     path: Mapped[str] = mapped_column(String(500), nullable=False, unique=True)
     type: Mapped[ProjectType] = mapped_column(String(50), nullable=False)
@@ -98,11 +99,9 @@ class Symbol(Base):
 
     __tablename__ = "symbols"
 
-    id: Mapped[UUID] = mapped_column(
-        PostgreSQLUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(UUIDType, primary_key=True, default=uuid4)
     project_id: Mapped[UUID] = mapped_column(
-        PostgreSQLUUID(as_uuid=True), ForeignKey("projects.id"), nullable=False
+        UUIDType, ForeignKey("projects.id"), nullable=False
     )
     file_path: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
     symbol_type: Mapped[SymbolType] = mapped_column(String(50), nullable=False)
