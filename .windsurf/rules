@@ -1,0 +1,63 @@
+# The Vault — Windsurf Configuration
+
+# Reference AGENTS.md for complete project context
+# This file contains Windsurf-specific overrides and rules
+
+include: AGENTS.md
+
+## Windsurf-Specific Rules
+
+1. **Always read AGENTS.md first** - This contains the complete project context
+2. **Follow architecture rules strictly** - Never violate layer separation principles
+3. **Use provided coding conventions** - Maintain consistency with existing patterns
+4. **Respect current build phase** - Phase 1 is backend-only, no frontend features yet
+5. **Check git branch strategy** - Work on feat/* branches, PR to dev, never commit directly to main
+
+## Development Workflow
+
+- Create feature branches: `feat/feature-name`
+- Use conventional commits: `type(scope): description`
+- Never commit directly to main or dev
+- All work via Pull Request to dev branch
+- Focus on backend modules: crawler/, parser/, storage/, api/
+
+## Code Generation Rules
+
+- Generate Python code with type hints everywhere
+- Use async/await for all I/O operations
+- Use Pydantic v2 for data validation
+- Follow existing error handling patterns
+- Use structlog for logging, never print()
+- Generate tests with pytest
+
+## Code Style — Python
+
+- Maximum line length: 100 characters
+- Imports: stdlib, then third-party, then local — separated by blank lines
+- Use `from __future__ import annotations` at top of every Python file
+- Docstrings: Google style, required for all public functions and classes
+
+## Code Style — TypeScript
+
+- Use named exports, never default exports (except for page components)
+- Tailwind classes: utility-first, no custom CSS unless Tailwind cannot do it
+
+## Forbidden Patterns
+
+- Do NOT generate frontend code (React/TypeScript) - Phase 1 is backend-only
+- Do NOT call Ollama from parser layer - violates architecture
+- Do NOT access files directly from frontend - use API layer
+- Do NOT suggest cloud services - this is a 100% local tool
+- Do NOT use subprocess or shell=True in Python code
+- Do NOT use localStorage in frontend - Tauri has its own storage API
+- Do NOT add dependencies without explaining why existing stack cannot handle it
+
+## When Unsure
+
+Ask. Do not guess at architecture decisions. Refer to docs/decisions/ ADRs.
+
+---
+
+**Purpose**: Windsurf-specific configuration for AI assistant behavior
+**Reference**: See AGENTS.md for complete project context
+**Updated**: 2026-03-02 - Phase 1 complete

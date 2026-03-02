@@ -1,0 +1,192 @@
+.................................................F...................... [ 38%]
+........................................................................ [ 76%]
+.............................................                            [100%]
+================================== FAILURES ===================================
+____________________________ test_main_final_gaps _____________________________
+
+    @pytest.mark.asyncio
+    async def test_main_final_gaps():
+        from vault.main import run_scan_command
+        # 1. run_scan_command: discovered_count == 0 (Line 263-264)
+        mock_args = MagicMock(command="scan", directories=[], output="table")
+        with patch("vault.crawler.ProjectDiscoveryService") as mock_ds_cls:
+            mock_ds = mock_ds_cls.return_value
+            mock_ds.discover_all_projects = AsyncMock(return_value={
+                "success": True, "discovered_count": 0, "projects": []
+            })
+            with patch("vault.storage.get_db_session") as mock_db:
+                mock_db.return_value.__aenter__.return_value = MagicMock()
+                with patch("builtins.print") as mock_print:
+                    await run_scan_command(mock_args)
+>                   mock_print.assert_any_call("No projects discovered.")
+
+tests\test_coverage_final_push.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='print' id='2585815869024'>
+args = ('No projects discovered.',), kwargs = {}
+expected = call('No projects discovered.'), cause = None
+actual = [call('Discovered 0 projects')]
+expected_string = "print('No projects discovered.')"
+
+    def assert_any_call(self, /, *args, **kwargs):
+        """assert the mock has been called with the specified arguments.
+    
+        The assert passes if the mock has *ever* been called, unlike
+        `assert_called_with` and `assert_called_once_with` that only pass if
+        the call is the most recent one."""
+        expected = self._call_matcher(_Call((args, kwargs), two=True))
+        cause = expected if isinstance(expected, Exception) else None
+        actual = [self._call_matcher(c) for c in self.call_args_list]
+        if cause or expected not in _AnyComparer(actual):
+            expected_string = self._format_mock_call_signature(args, kwargs)
+>           raise AssertionError(
+                '%s call not found' % expected_string
+            ) from cause
+E           AssertionError: print('No projects discovered.') call not found
+
+C:\Python313\Lib\unittest\mock.py:1050: AssertionError
+============================== warnings summary ===============================
+tests/test_coverage_db_final.py::test_get_db_yield
+  C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\_pytest\threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-21 (_connection_worker_thread)
+  
+  Traceback (most recent call last):
+    File "C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\aiosqlite\core.py", line 66, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_result, future, result)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  During handling of the above exception, another exception occurred:
+  
+  Traceback (most recent call last):
+    File "C:\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+      self.run()
+      ~~~~~~~~^^
+    File "C:\Python313\Lib\threading.py", line 994, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\aiosqlite\core.py", line 75, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_exception, future, e)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_coverage_symbol_utils.py::test_normalize_symbol_type
+  C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\_pytest\threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-68 (_connection_worker_thread)
+  
+  Traceback (most recent call last):
+    File "C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\aiosqlite\core.py", line 66, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_result, future, result)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  During handling of the above exception, another exception occurred:
+  
+  Traceback (most recent call last):
+    File "C:\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+      self.run()
+      ~~~~~~~~^^
+    File "C:\Python313\Lib\threading.py", line 994, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\aiosqlite\core.py", line 75, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_exception, future, e)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_coverage_symbol_utils.py::test_normalize_symbol_type
+  C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\_pytest\threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-64 (_connection_worker_thread)
+  
+  Traceback (most recent call last):
+    File "C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\aiosqlite\core.py", line 66, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_result, future, result)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  During handling of the above exception, another exception occurred:
+  
+  Traceback (most recent call last):
+    File "C:\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+      self.run()
+      ~~~~~~~~^^
+    File "C:\Python313\Lib\threading.py", line 994, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Users\Jostin\AppData\Roaming\Python\Python313\site-packages\aiosqlite\core.py", line 75, in _connection_worker_thread
+      future.get_loop().call_soon_threadsafe(set_exception, future, e)
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 878, in call_soon_threadsafe
+      self._check_closed()
+      ~~~~~~~~~~~~~~~~~~^^
+    File "C:\Python313\Lib\asyncio\base_events.py", line 556, in _check_closed
+      raise RuntimeError('Event loop is closed')
+  RuntimeError: Event loop is closed
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.13.5-final-0 _______________
+
+Name                                 Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------
+vault\__init__.py                        3      0      0      0   100%
+vault\api\__init__.py                    5      0      0      0   100%
+vault\api\indexer.py                    80      0      6      0   100%
+vault\api\projects.py                  106      3     18      1    97%   79, 119->117, 223-224
+vault\api\schemas.py                   119      0      0      0   100%
+vault\api\symbols.py                   132      0     20      0   100%
+vault\config.py                         37      0      6      0   100%
+vault\crawler\__init__.py                4      0      0      0   100%
+vault\crawler\fingerprint.py           122      1     64      5    97%   95->87, 161->154, 194, 218->221, 221->209
+vault\crawler\scanner.py               104      0     34      1    99%   24->27
+vault\crawler\watcher.py               114      0     36      5    97%   24->exit, 29->exit, 34->exit, 39->exit, 112->exit
+vault\exceptions.py                     15      0      0      0   100%
+vault\main.py                           98      2     18      2    95%   263-264, 271->exit
+vault\parser\__init__.py                 4      0      0      0   100%
+vault\parser\extractors.py             244      3    152     25    93%   98, 174->204, 180->204, 192->189, 193->192, 200->198, 201->200, 281->279, 282->281, 285, 349->361, 353->361, 428->427, 433->432, 434->432, 435->434, 438, 459->453, 480->453
+vault\parser\symbol_types.py            93      0     52      0   100%
+vault\parser\tree_sitter_parser.py     159      4     54      7    95%   85-86, 103->106, 161->159, 186->185, 189, 201, 300->299
+vault\storage\__init__.py                4      0      0      0   100%
+vault\storage\database.py               27      0      0      0   100%
+vault\storage\models.py                 71      0      0      0   100%
+vault\storage\repositories.py          116      1      8      1    98%   234
+--------------------------------------------------------------------------------
+TOTAL                                 1657     14    468     47    97%
+=========================== short test summary info ===========================
+FAILED tests/test_coverage_final_push.py::test_main_final_gaps - AssertionErr...
+1 failed, 188 passed, 3 warnings in 13.79s

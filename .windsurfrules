@@ -1,0 +1,19 @@
+# Windsurf Rules for The Vault
+# Full context: AGENTS.md. Architecture decisions: docs/decisions/
+
+## Cascade Behavior
+- Before any multi-file edit, state which files will be touched and why.
+- Respect the layer architecture from AGENTS.md. Parser never calls AI. Routes are thin.
+- When generating new API endpoints, always generate the corresponding Pydantic schema.
+- When editing the frontend, always generate the corresponding TypeScript type in lib/types.ts.
+
+## Flow Rules
+- Complete one logical change at a time. Do not refactor while adding features.
+- If a change requires touching more than 5 files, pause and describe the plan first.
+- Always run the affected test suite mentally before suggesting the change.
+
+## Style
+Same as .cursorrules — Google docstrings, Pydantic v2, typed hooks, named exports.
+
+## Forbidden
+Same as .cursorrules. No cloud APIs. No subprocess shell=True. No localStorage.

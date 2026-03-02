@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Vault — Design Specification</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+
+  :root {
+    --bg: #0a0b0f;
+    --bg2: #0f1117;
+    --bg3: #141720;
+    --border: #1e2232;
+    --border2: #252a3d;
+    --text: #c8cfe8;
+    --text-dim: #5a6384;
+    --text-dimmer: #343b52;
+    --accent: #4af0c4;
+    --accent2: #7c6af5;
+    --accent3: #f5a623;
+    --red: #f56060;
+    --amber: #f5c842;
+    --green: #42f5a1;
+    --code-bg: #0d1018;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 900px; margin: 0 auto; padding: 0 2rem 8rem; }
+
+  /* ── Cover ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content:'';
+    position:absolute;
+    top: -200px; left: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(74,240,196,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cover::after {
+    content:'';
+    position:absolute;
+    bottom: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(124,106,245,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3.5rem, 8vw, 6rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  h1 span { color: var(--accent); }
+
+  .cover-sub {
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    max-width: 560px;
+    font-style: italic;
+    margin-bottom: 3rem;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dimmer);
+    letter-spacing: 0.06em;
+  }
+  .cover-meta span { color: var(--text-dim); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 4rem 0;
+  }
+
+  /* ── Section headers ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #e0e8ff;
+    margin-bottom: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  p { margin-bottom: 1.25rem; color: var(--text); }
+
+  a { color: var(--accent); text-decoration: none; }
+
+  /* ── Competitive landscape table ── */
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    margin: 2rem 0;
+  }
+  .comp-table th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--bg3);
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    border-bottom: 1px solid var(--border2);
+  }
+  .comp-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: rgba(255,255,255,0.015); }
+  .yes { color: var(--green); }
+  .no { color: var(--red); }
+  .partial { color: var(--amber); }
+  .highlight-row td { background: rgba(74,240,196,0.04); }
+  .highlight-row td:first-child { border-left: 2px solid var(--accent); }
+
+  /* ── Feature cards ── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin: 2rem 0;
+  }
+  @media(max-width: 640px){ .feature-grid{ grid-template-columns: 1fr; } }
+
+  .feature-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .card-must::before { background: var(--red); }
+  .card-nice::before { background: var(--amber); }
+  .card-dream::before { background: var(--accent2); }
+
+  .card-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    margin-bottom: 0.75rem;
+  }
+  .tag-must { background: rgba(245,96,96,0.12); color: var(--red); }
+  .tag-nice { background: rgba(245,200,66,0.12); color: var(--amber); }
+  .tag-dream { background: rgba(124,106,245,0.12); color: var(--accent2); }
+
+  .feature-card h3 {
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #e8ecff;
+  }
+  .feature-card p {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    color: #8fa4c8;
+    white-space: pre;
+  }
+  .code-block .c { color: #3d4b6a; }
+  .code-block .k { color: var(--accent2); }
+  .code-block .s { color: var(--accent); }
+  .code-block .t { color: var(--accent3); }
+  .code-block .p { color: #c8cfe8; }
+  .code-block .n { color: #a8c4ff; }
+
+  /* ── Architecture box ── */
+  .arch-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.9;
+    color: #6a7fa8;
+    margin: 2rem 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .arch-box .arch-title { color: var(--accent); }
+  .arch-box .arch-box-border { color: var(--border2); }
+  .arch-box .arch-label { color: #a8c4ff; }
+  .arch-box .arch-accent { color: var(--accent3); }
+  .arch-box .arch-green { color: var(--green); }
+  .arch-box .arch-purple { color: var(--accent2); }
+
+  /* ── Callout box ── */
+  .callout {
+    background: var(--bg3);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 6px 6px 0;
+    margin: 2rem 0;
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--text);
+  }
+  .callout-warn { border-color: var(--amber); }
+  .callout strong { color: var(--accent); font-style: normal; font-family: 'DM Mono', monospace; font-size: 0.8rem; }
+
+  /* ── Data model ── */
+  .model-block {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    overflow: hidden;
+  }
+  .model-header {
+    background: var(--bg3);
+    padding: 0.75rem 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent3);
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.08em;
+  }
+  .model-body {
+    padding: 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 2;
+  }
+  .field { display: flex; gap: 1.5rem; }
+  .field-name { color: #a8c4ff; min-width: 200px; }
+  .field-type { color: var(--accent2); min-width: 120px; }
+  .field-note { color: var(--text-dim); font-style: italic; }
+
+  /* ── Phase timeline ── */
+  .phase-list { margin: 1.5rem 0; }
+  .phase {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase:last-child { border-bottom: none; }
+  .phase-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--border2);
+    min-width: 3rem;
+    line-height: 1;
+    padding-top: 0.2rem;
+  }
+  .phase-content h3 { margin-top: 0; font-size: 1rem; }
+  .phase-content p { font-size: 0.9rem; margin: 0; color: var(--text-dim); }
+
+  /* ── Scaffold tree ── */
+  .tree {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 2;
+    color: var(--text-dim);
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .tree .dir { color: var(--accent3); }
+  .tree .file { color: #8fa4c8; }
+  .tree .comment { color: var(--text-dimmer); }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin: 2rem 0 4rem;
+  }
+  .toc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    margin-bottom: 1rem;
+  }
+  .toc ol { counter-reset: toc-counter; list-style: none; padding: 0; }
+  .toc li {
+    counter-increment: toc-counter;
+    font-size: 0.9rem;
+    padding: 0.2rem 0;
+    color: var(--text-dim);
+  }
+  .toc li::before {
+    content: "0" counter(toc-counter) " — ";
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dimmer);
+  }
+
+  /* ── Badge row ── */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .badge-accent { border-color: rgba(74,240,196,0.3); color: var(--accent); background: rgba(74,240,196,0.05); }
+
+  /* ── Separator ── */
+  .section { margin-bottom: 5rem; }
+
+  /* ── Footer ── */
+  .footer {
+    padding: 3rem 0;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dimmer);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer span { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <section class="cover">
+    <div class="eyebrow">Design Specification — v0.1 — 2026</div>
+    <h1>The<br/><span>Vault</span></h1>
+    <p class="cover-sub">A local-first, AI-powered code archaeology tool. Your entire development history, searchable, documented, and alive.</p>
+    <div class="cover-meta">
+      <div>Stack <span>Tauri · FastAPI · Qdrant · Ollama</span></div>
+      <div>Target <span>RTX 3060 12GB · WSL2 Ubuntu</span></div>
+      <div>Author <span>J0571N</span></div>
+    </div>
+  </section>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Table of Contents</div>
+    <ol>
+      <li>Competitive Landscape — What Exists</li>
+      <li>The Gap — Why The Vault Is Different</li>
+      <li>System Architecture</li>
+      <li>Data Models</li>
+      <li>Feature Specification</li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;↳ Must Have — Core Features</li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;↳ Nice to Have — Knowledge Graph · Refactor Scoring · Git</li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;↳ Dream — YARVIS CLI Recall · Per-Project Chat · Port This To…</li>
+      <li>Project Scaffold</li>
+      <li>Build Phases</li>
+      <li>Hardware Reality &amp; Model Selection</li>
+    </ol>
+  </div>
+
+  <!-- 01 COMPETITIVE LANDSCAPE -->
+  <section class="section">
+    <div class="section-label">01 — Landscape</div>
+    <h2>What Already Exists</h2>
+    <p>The tooling space has converged around <em>active development assistance</em> — tools that help you inside the IDE you're currently working in. Nobody has built a tool oriented around <em>personal code archaeology</em> — navigating your own history across years and dozens of abandoned projects.</p>
+
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Multi-Project</th>
+          <th>Local / Private</th>
+          <th>Symbol Docs</th>
+          <th>History / Timeline</th>
+          <th>Abandonment Analysis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cursor</td>
+          <td class="no">✗ Single project</td>
+          <td class="partial">~ Cloud index</td>
+          <td class="partial">~ Hover only</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+        </tr>
+        <tr>
+          <td>GitHub Copilot</td>
+          <td class="no">✗ Current repo</td>
+          <td class="no">✗ Cloud</td>
+          <td class="partial">~ Inline only</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+        </tr>
+        <tr>
+          <td>RooCode + Qdrant</td>
+          <td class="no">✗ Single project</td>
+          <td class="yes">✓ Local option</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+        </tr>
+        <tr>
+          <td>Potpie</td>
+          <td class="no">✗ Per-repo</td>
+          <td class="no">✗ Cloud-first</td>
+          <td class="partial">~ Knowledge graph</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+        </tr>
+        <tr>
+          <td>AnythingLLM</td>
+          <td class="partial">~ Workspaces</td>
+          <td class="yes">✓ Desktop app</td>
+          <td class="no">✗ Not code-aware</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+        </tr>
+        <tr>
+          <td>Sourcegraph Cody</td>
+          <td class="partial">~ Enterprise</td>
+          <td class="no">✗ Cloud</td>
+          <td class="yes">✓</td>
+          <td class="no">✗</td>
+          <td class="no">✗</td>
+        </tr>
+        <tr class="highlight-row">
+          <td><strong>The Vault</strong></td>
+          <td class="yes">✓ Core feature</td>
+          <td class="yes">✓ 100% local</td>
+          <td class="yes">✓ Stored, not live</td>
+          <td class="yes">✓ Core feature</td>
+          <td class="yes">✓ Core feature</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      The fundamental difference: every existing tool is designed to help you write code <em>now</em>. The Vault is designed to help you find and understand code you wrote <em>then</em>. This is a completely different use case with no real competition.
+    </div>
+  </section>
+
+  <!-- 02 SYSTEM ARCHITECTURE -->
+  <section class="section">
+    <div class="section-label">02 — Architecture</div>
+    <h2>System Design</h2>
+    <p>The architecture is built around a single guiding principle: <strong>pay the AI cost once, get the value forever</strong>. Everything is designed to minimize redundant computation while maximizing the depth of stored knowledge.</p>
+
+    <div class="arch-box"><span class="arch-title">THE VAULT — SYSTEM ARCHITECTURE</span>
+
+<span class="arch-box-border">╔══════════════════════════════════════════════════════════════════╗</span>
+<span class="arch-box-border">║</span>  <span class="arch-label">INGESTION LAYER</span>  (runs once, then incrementally on file change)  <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                                                                  <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>   <span class="arch-accent">[File Watcher]</span> ──► <span class="arch-green">[Tree-sitter Parser]</span> ──► <span class="arch-label">[Symbol Table]</span>   <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>    watches roots         extracts all symbols     SQLite store    <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                                   │                               <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                     ┌─────────────▼──────────────┐               <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                     │   <span class="arch-purple">AI Documentation Queue</span>     │               <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                     │   Ollama WSL2 (RTX 3060)   │               <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                     │   Qwen2.5-Coder 7B-Inst    │               <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                     └─────────────┬──────────────┘               <span class="arch-box-border">║</span>
+<span class="arch-box-border">╚══════════════════════════════════╪═══════════════════════════════╝</span>
+                                    │
+<span class="arch-box-border">╔══════════════════════════════════╪═══════════════════════════════╗</span>
+<span class="arch-box-border">║</span>  <span class="arch-label">STORAGE LAYER</span>                  │                              <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                                  ▼                              <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>   <span class="arch-accent">[SQLite]</span>        <span class="arch-green">[Qdrant]</span>        <span class="arch-purple">[JSON Cache]</span>               <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>   Projects         Vector         .vault/ per project            <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>   Symbols          embeddings      AI-generated docs             <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>   Files            semantic        travel with project           <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>   Metadata         search index                                  <span class="arch-box-border">║</span>
+<span class="arch-box-border">╚══════════════════════════════════╪═══════════════════════════════╝</span>
+                                    │
+<span class="arch-box-border">╔══════════════════════════════════╪═══════════════════════════════╗</span>
+<span class="arch-box-border">║</span>  <span class="arch-label">API LAYER</span>                        │                              <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                                  ▼                              <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>              <span class="arch-accent">[FastAPI — Python]</span>                                  <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>              REST + WebSocket for live indexing status           <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>              Tauri IPC bridge for filesystem access              <span class="arch-box-border">║</span>
+<span class="arch-box-border">╚══════════════════════════════════╪═══════════════════════════════╝</span>
+                                    │
+<span class="arch-box-border">╔══════════════════════════════════╪═══════════════════════════════╗</span>
+<span class="arch-box-border">║</span>  <span class="arch-label">PRESENTATION LAYER</span>              │                              <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>                                  ▼                              <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>    <span class="arch-accent">[Tauri v2 + React + TypeScript]</span>                             <span class="arch-box-border">║</span>
+<span class="arch-box-border">║</span>    Registry  │  Explorer  │  Search  │  Timeline  │  Chat       <span class="arch-box-border">║</span>
+<span class="arch-box-border">╚══════════════════════════════════════════════════════════════════╝</span></div>
+
+    <h3>Two-Layer Processing Philosophy</h3>
+    <p>The parser layer (Tree-sitter) is fast, deterministic, and free — it runs in milliseconds. The AI layer (Ollama) is slow and expensive in compute time, but runs only once per file version and produces stored knowledge. These two layers should never be confused or combined.</p>
+
+    <div class="badge-row">
+      <div class="badge badge-accent">Tree-sitter → Symbol Extraction</div>
+      <div class="badge">Ollama → Documentation Generation</div>
+      <div class="badge">Qdrant → Semantic Search</div>
+      <div class="badge">SQLite → Relational Metadata</div>
+      <div class="badge">JSON Cache → Portable Doc Store</div>
+    </div>
+  </section>
+
+  <!-- 03 DATA MODELS -->
+  <section class="section">
+    <div class="section-label">03 — Data Models</div>
+    <h2>Core Data Structures</h2>
+
+    <div class="model-block">
+      <div class="model-header">MODEL: Project</div>
+      <div class="model-body">
+        <div class="field"><span class="field-name">id</span><span class="field-type">uuid</span><span class="field-note">Primary key</span></div>
+        <div class="field"><span class="field-name">name</span><span class="field-type">string</span><span class="field-note">Derived from folder name</span></div>
+        <div class="field"><span class="field-name">path</span><span class="field-type">string</span><span class="field-note">Absolute path on disk</span></div>
+        <div class="field"><span class="field-name">type</span><span class="field-type">ProjectType</span><span class="field-note">Unity | Java | Python | Node | RenPy | CSharp | Other</span></div>
+        <div class="field"><span class="field-name">language_primary</span><span class="field-type">string</span><span class="field-note">Most common extension</span></div>
+        <div class="field"><span class="field-name">loc_total</span><span class="field-type">integer</span><span class="field-note">Lines of code, all files</span></div>
+        <div class="field"><span class="field-name">file_count</span><span class="field-type">integer</span></div>
+        <div class="field"><span class="field-name">first_seen</span><span class="field-type">datetime</span><span class="field-note">Oldest file timestamp</span></div>
+        <div class="field"><span class="field-name">last_modified</span><span class="field-type">datetime</span><span class="field-note">Most recent file change</span></div>
+        <div class="field"><span class="field-name">health_score</span><span class="field-type">float 0-1</span><span class="field-note">Composite: recency + TODO density + completeness</span></div>
+        <div class="field"><span class="field-name">summary_ai</span><span class="field-type">text</span><span class="field-note">AI-generated one-paragraph summary</span></div>
+        <div class="field"><span class="field-name">patterns_detected</span><span class="field-type">string[]</span><span class="field-note">Singleton, ECS, EventBus, Repository, etc.</span></div>
+        <div class="field"><span class="field-name">abandonment_reason</span><span class="field-type">string</span><span class="field-note">AI-inferred: ContentWall | TechDebt | ScopeCreep | ContextSwitch | Complete</span></div>
+        <div class="field"><span class="field-name">tags</span><span class="field-type">string[]</span><span class="field-note">User-defined and AI-suggested</span></div>
+        <div class="field"><span class="field-name">index_status</span><span class="field-type">IndexStatus</span><span class="field-note">Pending | Parsing | Documenting | Complete | Error</span></div>
+        <div class="field"><span class="field-name">git_has</span><span class="field-type">boolean</span></div>
+        <div class="field"><span class="field-name">git_last_commit</span><span class="field-type">datetime?</span></div>
+        <div class="field"><span class="field-name">git_commit_count</span><span class="field-type">integer?</span></div>
+      </div>
+    </div>
+
+    <div class="model-block">
+      <div class="model-header">MODEL: Symbol</div>
+      <div class="model-body">
+        <div class="field"><span class="field-name">id</span><span class="field-type">uuid</span></div>
+        <div class="field"><span class="field-name">project_id</span><span class="field-type">uuid → Project</span></div>
+        <div class="field"><span class="field-name">file_path</span><span class="field-type">string</span><span class="field-note">Relative to project root</span></div>
+        <div class="field"><span class="field-name">symbol_type</span><span class="field-type">SymbolType</span><span class="field-note">Class | Method | Field | Enum | Interface | Property | Constructor | Constant</span></div>
+        <div class="field"><span class="field-name">name</span><span class="field-type">string</span></div>
+        <div class="field"><span class="field-name">qualified_name</span><span class="field-type">string</span><span class="field-note">e.g. com.j0571n.HiperBanco.transferFunds</span></div>
+        <div class="field"><span class="field-name">signature</span><span class="field-type">string</span><span class="field-note">Full method signature / class declaration</span></div>
+        <div class="field"><span class="field-name">line_start</span><span class="field-type">integer</span></div>
+        <div class="field"><span class="field-name">line_end</span><span class="field-type">integer</span></div>
+        <div class="field"><span class="field-name">raw_code</span><span class="field-type">text</span><span class="field-note">Extracted source for the symbol body</span></div>
+        <div class="field"><span class="field-name">doc_summary</span><span class="field-type">text</span><span class="field-note">AI: What this does in plain English</span></div>
+        <div class="field"><span class="field-name">doc_purpose</span><span class="field-type">text</span><span class="field-note">AI: Why it exists / design intent</span></div>
+        <div class="field"><span class="field-name">doc_pattern</span><span class="field-type">string?</span><span class="field-note">AI: Design pattern detected</span></div>
+        <div class="field"><span class="field-name">doc_reuse</span><span class="field-type">ReusePotential</span><span class="field-note">HIGH | MEDIUM | LOW | PROJECT_SPECIFIC</span></div>
+        <div class="field"><span class="field-name">doc_example</span><span class="field-type">text?</span><span class="field-note">AI: Usage example</span></div>
+        <div class="field"><span class="field-name">doc_params</span><span class="field-type">json?</span><span class="field-note">{ name, type, description }[] for methods</span></div>
+        <div class="field"><span class="field-name">doc_returns</span><span class="field-type">text?</span></div>
+        <div class="field"><span class="field-name">doc_notes</span><span class="field-type">text?</span><span class="field-note">AI: Caveats, gotchas, tech debt flags</span></div>
+        <div class="field"><span class="field-name">has_todo</span><span class="field-type">boolean</span></div>
+        <div class="field"><span class="field-name">embedding_id</span><span class="field-type">string</span><span class="field-note">Reference to Qdrant point</span></div>
+        <div class="field"><span class="field-name">content_hash</span><span class="field-type">string</span><span class="field-note">MD5 of raw_code — for change detection</span></div>
+        <div class="field"><span class="field-name">refactor_seed</span><span class="field-type">boolean</span><span class="field-note">True if ranked best of its pattern group by second-pass AI scoring</span></div>
+        <div class="field"><span class="field-name">refactor_score</span><span class="field-type">float 0-1?</span><span class="field-note">Composite: quality + recency + reuse, set by comparison pass</span></div>
+        <div class="field"><span class="field-name">pattern_group</span><span class="field-type">string?</span><span class="field-note">Shared key linking all symbols of the same pattern for comparison (e.g. "ObjectPool")</span></div>
+      </div>
+    </div>
+
+    <div class="model-block">
+      <div class="model-header">MODEL: SearchResult (Qdrant point payload)</div>
+      <div class="model-body">
+        <div class="field"><span class="field-name">symbol_id</span><span class="field-type">uuid</span></div>
+        <div class="field"><span class="field-name">project_id</span><span class="field-type">uuid</span></div>
+        <div class="field"><span class="field-name">project_name</span><span class="field-type">string</span></div>
+        <div class="field"><span class="field-name">symbol_type</span><span class="field-type">string</span></div>
+        <div class="field"><span class="field-name">name</span><span class="field-type">string</span></div>
+        <div class="field"><span class="field-name">summary</span><span class="field-type">string</span><span class="field-note">Short text for result preview</span></div>
+        <div class="field"><span class="field-name">file_path</span><span class="field-type">string</span></div>
+        <div class="field"><span class="field-name">reuse_potential</span><span class="field-type">string</span></div>
+      </div>
+    </div>
+
+    <p>The AI documentation output per symbol is also stored as a structured JSON block and saved to a <code>.vault/symbols/&lt;hash&gt;.json</code> file inside the project folder — this means the documentation travels with the code if you move the project.</p>
+
+    <div class="code-block"><span class="c">// Example: .vault/symbols/ObjectPoolManager_a3f9.json</span>
+<span class="p">{</span>
+  <span class="s">"symbol"</span><span class="p">:</span> <span class="s">"ObjectPoolManager"</span><span class="p">,</span>
+  <span class="s">"type"</span><span class="p">:</span> <span class="s">"Class"</span><span class="p">,</span>
+  <span class="s">"file"</span><span class="p">:</span> <span class="s">"Assets/Scripts/ObjectPoolManager.cs"</span><span class="p">,</span>
+  <span class="s">"project"</span><span class="p">:</span> <span class="s">"SideScroller"</span><span class="p">,</span>
+  <span class="s">"summary"</span><span class="p">:</span> <span class="s">"Tag-based generic pool that pre-allocates GameObjects to reduce GC pressure."</span><span class="p">,</span>
+  <span class="s">"purpose"</span><span class="p">:</span> <span class="s">"Performance optimization for high-frequency spawning (bullets, particles)."</span><span class="p">,</span>
+  <span class="s">"pattern"</span><span class="p">:</span> <span class="s">"Object Pool (GoF) + Interface Segregation"</span><span class="p">,</span>
+  <span class="s">"reuse"</span><span class="p">:</span> <span class="s">"HIGH"</span><span class="p">,</span>
+  <span class="s">"example"</span><span class="p">:</span> <span class="s">"PoolManager.Instance.SpawnFromPool(\"Bullet\", pos, rot);"</span><span class="p">,</span>
+  <span class="s">"notes"</span><span class="p">:</span> <span class="s">"Requires IPoolable on all pooled objects. Pool grows dynamically if depleted."</span><span class="p">,</span>
+  <span class="s">"content_hash"</span><span class="p">:</span> <span class="s">"a3f9e1b2..."</span><span class="p">,</span>
+  <span class="s">"generated_at"</span><span class="p">:</span> <span class="s">"2026-03-01T14:22:00Z"</span>
+<span class="p">}</span></div>
+  </section>
+
+  <!-- 04 FEATURES -->
+  <section class="section">
+    <div class="section-label">04 — Features</div>
+    <h2>Feature Specification</h2>
+
+    <h4>Must Have — The App Lives or Dies By These</h4>
+    <div class="feature-grid">
+      <div class="feature-card card-must">
+        <div class="card-tag tag-must">Must Have</div>
+        <h3>Project Registry</h3>
+        <p>Grid of project cards. Each shows name, type, last modified, LOC, one-line AI summary, and a health color indicator (green / amber / red). Filterable by language, type, recency.</p>
+      </div>
+      <div class="feature-card card-must">
+        <div class="card-tag tag-must">Must Have</div>
+        <h3>Background Crawler</h3>
+        <p>Watches configured root directories. Detects new files and changed files. Queues them for parsing and AI documentation. Shows live progress. Runs silently after initial full scan.</p>
+      </div>
+      <div class="feature-card card-must">
+        <div class="card-tag tag-must">Must Have</div>
+        <h3>Symbol-Level AI Docs</h3>
+        <p>Every class, method, field, enum, interface documented by Ollama — once, stored permanently. Summary, purpose, pattern detected, reuse rating, and usage example.</p>
+      </div>
+      <div class="feature-card card-must">
+        <div class="card-tag tag-must">Must Have</div>
+        <h3>Semantic Search</h3>
+        <p>"Find my XP scaling formula" → returns BaseSkill.cs from Project-X. Natural language queries via Qdrant vector search. Results show project, file, symbol name, and AI summary.</p>
+      </div>
+      <div class="feature-card card-must">
+        <div class="card-tag tag-must">Must Have</div>
+        <h3>Project Detail View</h3>
+        <p>File tree, project-level AI summary, detected patterns, key systems, all symbols with documentation. Entry point to the whole project knowledge base.</p>
+      </div>
+      <div class="feature-card card-must">
+        <div class="card-tag tag-must">Must Have</div>
+        <h3>Code Viewer + Docs Panel</h3>
+        <p>Open any file with syntax highlighting. Click a class or method to open its AI documentation panel on the right. Like an IDE tooltip but much richer and always available.</p>
+      </div>
+    </div>
+
+    <h4>Nice to Have — Make It Genuinely Great</h4>
+    <div class="feature-grid">
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have</div>
+        <h3>Development Timeline</h3>
+        <p>Horizontal timeline built from file timestamps. Scrub through your history. See which projects were active when. Understand your context: "I was doing HiperBanco while starting Unity."</p>
+      </div>
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have</div>
+        <h3>Cross-Project Pattern Map</h3>
+        <p>Visual graph showing how the EventBus evolved across SnakePrototype → Project-X → VisualNovelEngine. Links similar systems across projects. Your technical DNA, visualized.</p>
+      </div>
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have</div>
+        <h3>TODO/FIXME Tracker</h3>
+        <p>Global list of every TODO and FIXME across all projects. Grouped by project. AI's best guess at what was intended. Effort estimate to complete. A window into your unfinished thoughts.</p>
+      </div>
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have</div>
+        <h3>Code Snippet Pinboard</h3>
+        <p>Pin specific code snippets from any project. Source file, project, and AI docs visible per pin. Create collections: "Pooling Patterns", "Authentication Logic", "Math Utilities".</p>
+      </div>
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have</div>
+        <h3>Abandonment Diagnosis</h3>
+        <p>Per-project "Why did I stop?" analysis. AI examines last modified files, WIP comments, git history. Categorizes: TechnicalWall / ScopeCreep / ContextSwitch / NaturalCompletion.</p>
+      </div>
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have</div>
+        <h3>Git History Integration</h3>
+        <p>Pull commit logs for git repos. Enrich project timelines with real commit messages. Last commit subject, branch state, frequency over time. Real data beats timestamp guessing.</p>
+      </div>
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have · Phase 5</div>
+        <h3>Local Knowledge Graph Export</h3>
+        <p>Export <code>.vault/graph.json</code> mapping relationships between systems across all projects — e.g. "EventBus pattern → implemented in 3 games, evolved across 2 years." Built on top of pattern detection data already in storage. YARVIS ingests this as a static knowledge artifact to synthesize architecture recommendations without querying the live database.</p>
+      </div>
+      <div class="feature-card card-nice">
+        <div class="card-tag tag-nice">Nice to Have · Phase 5</div>
+        <h3>Refactor Potential Scoring</h3>
+        <p>After the initial documentation pass, a second-pass Ollama prompt groups all symbols sharing the same detected pattern and ranks them by code quality, recency, and reuse potential. The winner is flagged as a <strong>Refactor Seed</strong> — the definitive version of that system, ready for extraction as a standalone package or Unity Asset Store candidate. A dedicated "Seeds" filter in the Registry surfaces these instantly.</p>
+      </div>
+    </div>
+
+    <h4>Dream Features — If This Becomes Something Bigger</h4>
+    <div class="feature-grid">
+      <div class="feature-card card-dream">
+        <div class="card-tag tag-dream">Dream</div>
+        <h3>Per-Project AI Chat</h3>
+        <p>Bounded RAG chat per project. "How does attribute regeneration work?" — answered using only that project's indexed symbols as context. No hallucination about things that aren't there.</p>
+      </div>
+      <div class="feature-card card-dream">
+        <div class="card-tag tag-dream">Dream</div>
+        <h3>Asset Package Assembler</h3>
+        <p>Highlight a system (e.g. Typed Event Bus). App finds all dependencies, copies them to a clean folder, generates a README. One-click extraction of reusable modules.</p>
+      </div>
+      <div class="feature-card card-dream">
+        <div class="card-tag tag-dream">Dream</div>
+        <h3>"Port This To…" Button</h3>
+        <p>Highlight a class, choose a target language. Ollama generates a translation with explanatory comments. Immediately useful for your Java → C# patterns.</p>
+      </div>
+      <div class="feature-card card-dream">
+        <div class="card-tag tag-dream">Dream</div>
+        <h3>YARVIS Feed</h3>
+        <p>Dedicated export pipeline: symbols, summaries, project graph, cross-references → structured format YARVIS can query directly. The Vault becomes YARVIS's long-term code memory. Pairs with the CLI Recall command below.</p>
+      </div>
+      <div class="feature-card card-dream">
+        <div class="card-tag tag-dream">Dream · Depends on YARVIS Plugin System</div>
+        <h3>YARVIS CLI Recall</h3>
+        <p>Once The Vault's REST API is stable, YARVIS gains a <code>recall</code> command that queries it with natural language. <code>yarvis recall "best inventory system I ever wrote"</code> fires a semantic search, retrieves the top-ranked symbol docs, and formats them into a YARVIS response. Optionally chain with <code>--port-to cs</code> to immediately translate the result. Architecturally simple — just an HTTP call to <code>POST /api/search</code>. You'd literally be talking to your past self.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 PROJECT SCAFFOLD -->
+  <section class="section">
+    <div class="section-label">05 — Scaffold</div>
+    <h2>Project Structure</h2>
+
+    <div class="tree">
+<span class="dir">the-vault/</span>
+├── <span class="dir">backend/</span>                         <span class="comment"># FastAPI — Python 3.11+</span>
+│   ├── <span class="dir">vault/</span>
+│   │   ├── <span class="file">main.py</span>                  <span class="comment"># App entry point, router registration</span>
+│   │   ├── <span class="dir">crawler/</span>
+│   │   │   ├── <span class="file">watcher.py</span>           <span class="comment"># Watchdog-based file system watcher</span>
+│   │   │   ├── <span class="file">scanner.py</span>           <span class="comment"># Recursive root scanner, project detection</span>
+│   │   │   └── <span class="file">fingerprint.py</span>       <span class="comment"># Project type detection logic</span>
+│   │   ├── <span class="dir">parser/</span>
+│   │   │   ├── <span class="file">tree_sitter.py</span>       <span class="comment"># Symbol extraction via tree-sitter</span>
+│   │   │   ├── <span class="file">languages/</span>           <span class="comment"># Per-language parser configs: cs, java, py, js, rpy</span>
+│   │   │   └── <span class="file">symbol_types.py</span>      <span class="comment"># SymbolType enum, normalisation</span>
+│   │   ├── <span class="dir">ai/</span>
+│   │   │   ├── <span class="file">ollama_client.py</span>     <span class="comment"># Ollama HTTP client wrapper</span>
+│   │   │   ├── <span class="file">doc_generator.py</span>    <span class="comment"># Prompt templates, symbol → AI doc</span>
+│   │   │   ├── <span class="file">project_summary.py</span>  <span class="comment"># Project-level summary generation</span>
+│   │   │   └── <span class="file">queue.py</span>             <span class="comment"># Background queue, rate limiting, retry</span>
+│   │   ├── <span class="dir">storage/</span>
+│   │   │   ├── <span class="file">database.py</span>          <span class="comment"># SQLAlchemy models + session</span>
+│   │   │   ├── <span class="file">models.py</span>            <span class="comment"># Project, Symbol, File SQLAlchemy models</span>
+│   │   │   ├── <span class="file">vector_store.py</span>     <span class="comment"># Qdrant client wrapper</span>
+│   │   │   └── <span class="file">cache.py</span>             <span class="comment"># .vault/symbols/*.json file cache</span>
+│   │   ├── <span class="dir">api/</span>
+│   │   │   ├── <span class="file">projects.py</span>          <span class="comment"># GET /projects, GET /projects/{id}</span>
+│   │   │   ├── <span class="file">symbols.py</span>          <span class="comment"># GET /symbols/{id}, GET /projects/{id}/symbols</span>
+│   │   │   ├── <span class="file">search.py</span>            <span class="comment"># POST /search (semantic + keyword)</span>
+│   │   │   ├── <span class="file">files.py</span>             <span class="comment"># GET file content with symbol annotations</span>
+│   │   │   ├── <span class="file">indexer.py</span>           <span class="comment"># POST /index/project, WS /index/status</span>
+│   │   │   ├── <span class="file">graph.py</span>             <span class="comment"># GET /export/graph → .vault/graph.json</span>
+│   │   │   └── <span class="file">refactor.py</span>          <span class="comment"># GET /refactor/seeds, POST /refactor/run-comparison</span>
+│   │   └── <span class="file">config.py</span>               <span class="comment"># Root paths, Ollama URL, model config</span>
+│   ├── <span class="file">requirements.txt</span>
+│   └── <span class="file">pyproject.toml</span>
+│
+├── <span class="dir">frontend/</span>                        <span class="comment"># Tauri v2 + React + TypeScript</span>
+│   ├── <span class="dir">src-tauri/</span>                   <span class="comment"># Rust Tauri shell</span>
+│   │   └── <span class="file">tauri.conf.json</span>
+│   └── <span class="dir">src/</span>
+│       ├── <span class="dir">pages/</span>
+│       │   ├── <span class="file">Registry.tsx</span>         <span class="comment"># Project grid — homepage</span>
+│       │   ├── <span class="file">ProjectDetail.tsx</span>   <span class="comment"># File tree + project overview</span>
+│       │   ├── <span class="file">FileExplorer.tsx</span>    <span class="comment"># Code viewer + docs panel</span>
+│       │   ├── <span class="file">Search.tsx</span>           <span class="comment"># Global semantic search</span>
+│       │   ├── <span class="file">Timeline.tsx</span>         <span class="comment"># Development history view</span>
+│       │   └── <span class="file">Settings.tsx</span>         <span class="comment"># Root config, model selection</span>
+│       ├── <span class="dir">components/</span>
+│       │   ├── <span class="file">ProjectCard.tsx</span>
+│       │   ├── <span class="file">SymbolDocPanel.tsx</span>  <span class="comment"># AI docs sidebar for a symbol</span>
+│       │   ├── <span class="file">CodeViewer.tsx</span>       <span class="comment"># Syntax highlighted source</span>
+│       │   ├── <span class="file">IndexProgress.tsx</span>   <span class="comment"># Live indexing progress overlay</span>
+│       │   └── <span class="file">SearchBar.tsx</span>
+│       ├── <span class="dir">hooks/</span>
+│       │   ├── <span class="file">useProjects.ts</span>
+│       │   ├── <span class="file">useSearch.ts</span>
+│       │   └── <span class="file">useIndexStatus.ts</span>  <span class="comment"># WebSocket connection</span>
+│       └── <span class="dir">lib/</span>
+│           ├── <span class="file">api.ts</span>               <span class="comment"># API client (typed fetch wrappers)</span>
+│           └── <span class="file">types.ts</span>             <span class="comment"># Shared TypeScript types</span>
+│
+├── <span class="dir">docs/</span>                            <span class="comment"># Internal dev documentation</span>
+│   ├── <span class="file">prompts.md</span>                   <span class="comment"># Ollama prompt templates</span>
+│   └── <span class="file">parser-notes.md</span>             <span class="comment"># Tree-sitter grammar notes per language</span>
+│
+└── <span class="file">docker-compose.yml</span>              <span class="comment"># Qdrant container</span></div>
+
+    <div class="callout">
+      A <code>.vault/</code> hidden folder is created inside each indexed project root. It stores <code>symbols/*.json</code> (AI docs per symbol), <code>project.json</code> (metadata snapshot), and at the global level <code>graph.json</code> (cross-project knowledge graph) and <code>seeds.json</code> (Refactor Seed rankings). All of these travel with the project if you move it, and YARVIS can consume any of them without touching the live database.
+    </div>
+  </section>
+
+  <!-- 06 PROMPTS -->
+  <section class="section">
+    <div class="section-label">06 — AI Integration</div>
+    <h2>Ollama Prompt Design</h2>
+
+    <p>Prompt quality determines documentation quality. Every prompt is a template with the symbol's raw code, type, context (parent class, file path), and language injected.</p>
+
+    <div class="code-block"><span class="c">## SYMBOL DOCUMENTATION PROMPT TEMPLATE</span>
+
+<span class="k">You are</span> a senior software engineer analyzing legacy code.
+Your task is to generate structured documentation for a single code symbol.
+
+<span class="k">Language:</span> <span class="t">{language}</span>
+<span class="k">Symbol Type:</span> <span class="t">{symbol_type}</span>
+<span class="k">File:</span> <span class="t">{file_path}</span>
+<span class="k">Parent Context:</span> <span class="t">{parent_class_name}</span> (if applicable)
+<span class="k">Project:</span> <span class="t">{project_name}</span> (<span class="t">{project_type}</span>)
+
+<span class="k">CODE:</span>
+<span class="s">```{language}
+{raw_code}
+```</span>
+
+Respond ONLY with valid JSON. No preamble. Format:
+<span class="p">{</span>
+  <span class="s">"summary"</span>: <span class="s">"One sentence. What this does."</span>,
+  <span class="s">"purpose"</span>: <span class="s">"Why it exists. Design intent."</span>,
+  <span class="s">"pattern"</span>: <span class="s">"Design pattern if detected, else null"</span>,
+  <span class="s">"reuse"</span>: <span class="s">"HIGH | MEDIUM | LOW | PROJECT_SPECIFIC"</span>,
+  <span class="s">"example"</span>: <span class="s">"One usage example as a code string, else null"</span>,
+  <span class="s">"params"</span>: [<span class="p">{</span><span class="s">"name"</span>:<span class="s">""</span>, <span class="s">"type"</span>:<span class="s">""</span>, <span class="s">"desc"</span>:<span class="s">""</span><span class="p">}</span>],
+  <span class="s">"returns"</span>: <span class="s">"What is returned, or null"</span>,
+  <span class="s">"notes"</span>: <span class="s">"Caveats, gotchas, tech debt observations, or null"</span>
+<span class="p">}</span></div>
+
+    <p>Keep prompts tight. A bloated prompt wastes tokens, slows generation, and reduces JSON reliability. The structure forces the model to be concise.</p>
+  </section>
+
+  <!-- 07 BUILD PHASES -->
+  <section class="section">
+    <div class="section-label">07 — Build Plan</div>
+    <h2>Development Phases</h2>
+    <p>Each phase delivers something usable. You're never building in the dark.</p>
+
+    <div class="phase-list">
+      <div class="phase">
+        <div class="phase-num">01</div>
+        <div class="phase-content">
+          <h3>The Scanner — No AI, Just Data</h3>
+          <p>Build the crawler and Tree-sitter parser. Get a working SQLite database of all your projects and their symbols with zero AI involved. At the end of this phase you have a full symbol table. Validate it against your known projects. Deliverable: <strong>CLI tool</strong> that prints a project/symbol report.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">02</div>
+        <div class="phase-content">
+          <h3>The Registry — Frontend with Static Data</h3>
+          <p>Build the Tauri + React frontend. Wire it to the FastAPI backend. Show the project registry grid with real project metadata. No AI docs yet — just file counts, LOC, last modified. Deliverable: <strong>Desktop app</strong> showing your projects as cards.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">03</div>
+        <div class="phase-content">
+          <h3>The Intelligence — Ollama Documentation</h3>
+          <p>Wire in the Ollama queue. Run the first full documentation pass as a background job. Store results in SQLite + JSON cache. Show AI docs in the Code Viewer panel. Deliverable: <strong>Working symbol documentation</strong> for all parsed symbols.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">04</div>
+        <div class="phase-content">
+          <h3>The Search — Qdrant + Semantic Queries</h3>
+          <p>Set up Qdrant (Docker). Embed all symbol summaries using nomic-embed-text via Ollama. Build the search API and frontend. Test with real queries from your history. Deliverable: <strong>Semantic search</strong> across all symbols.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">05</div>
+        <div class="phase-content">
+          <h3>Polish + Nice-to-Haves</h3>
+          <p>Git history integration, Timeline view, TODO tracker, Abandonment diagnosis, Pinboard. These can be built independently and added without breaking anything. Deliverable: <strong>Fully featured v1.0</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 HARDWARE -->
+  <section class="section">
+    <div class="section-label">08 — Hardware</div>
+    <h2>RTX 3060 12GB — Reality Check</h2>
+
+    <table class="comp-table">
+      <thead>
+        <tr><th>Model</th><th>VRAM Usage</th><th>Speed (tok/s)</th><th>Code Quality</th><th>Recommendation</th></tr>
+      </thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td>Qwen2.5-Coder 7B Instruct Q4</td>
+          <td class="yes">~5.5 GB</td>
+          <td class="yes">40–60 tok/s</td>
+          <td class="yes">Excellent</td>
+          <td class="yes">✓ Primary choice</td>
+        </tr>
+        <tr>
+          <td>DeepSeek-Coder-V2 Lite 16B Q4</td>
+          <td class="amber">~11 GB</td>
+          <td class="amber">15–25 tok/s</td>
+          <td class="yes">Excellent</td>
+          <td class="partial">~ Tight, test first</td>
+        </tr>
+        <tr>
+          <td>CodeLlama 13B Q4</td>
+          <td class="yes">~8 GB</td>
+          <td class="amber">20–35 tok/s</td>
+          <td class="partial">Good</td>
+          <td class="partial">~ Fallback option</td>
+        </tr>
+        <tr>
+          <td>nomic-embed-text (embeddings)</td>
+          <td class="yes">~1 GB</td>
+          <td class="yes">Fast</td>
+          <td class="yes">Excellent</td>
+          <td class="yes">✓ Always use for Qdrant</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-warn">
+      <strong>Initial Pass Estimate:</strong> With ~500 symbols across all your projects and Qwen2.5-Coder 7B at ~50 tok/s, the first full documentation run takes roughly <strong>30–45 minutes</strong> as a background job. Run it overnight. After that, only changed files re-queue — typically a few minutes per coding session.
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <div class="footer">
+    <div>The Vault — Design Specification v0.1 — 2026</div>
+    <div>Built for <span>J0571N</span> — 100% Local — Zero Cloud Dependency</div>
+  </div>
+
+</div>
+</body>
+</html>

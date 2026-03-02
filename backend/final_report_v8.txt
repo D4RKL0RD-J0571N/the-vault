@@ -1,0 +1,137 @@
+...............................................FF....................... [ 37%]
+........................................................................ [ 75%]
+..............................................                           [100%]
+================================== FAILURES ===================================
+___________________________ test_scanner_final_gaps ___________________________
+
+    @pytest.mark.asyncio
+    async def test_scanner_final_gaps():
+        repo = MagicMock(spec=ProjectRepository)
+        scanner = ProjectScanner(repo)
+    
+        # 1. _should_exclude_directory: hidden dir (Line 149)
+        assert scanner._should_exclude_directory(Path(".hidden")) is True
+    
+        # 2. _scan_directory: _create_or_update_project returns None (Line 82)
+        with patch("pathlib.Path.iterdir", return_value=[Path("/p/proj")]):
+            with patch.object(Path, "is_dir", return_value=True):
+                with patch.object(scanner, "_should_exclude_directory", return_value=False):
+                    with patch.object(scanner, "_is_project_directory", AsyncMock(return_value=True)):
+                             res = await scanner._scan_directory(Path("/p"))
+>                            assert res == []
+E                            AssertionError: assert [<AsyncMock n...23876372160'>] == []
+E                              
+E                              Left contains one more item: <AsyncMock name='mock.update()' id='2923876372160'>
+E                              Use -v to get more diff
+
+tests\test_coverage_final_push.py:105: AssertionError
+_____________________ test_api_refresh_project_exception ______________________
+
+project_id = UUID('b4970867-ccfc-4652-a5f7-4ece83e1064d')
+discovery_service = <MagicMock id='2923876378544'>
+
+    @router.post("/{project_id}/refresh", response_model=Project)
+    async def refresh_project(
+        project_id: UUID,
+        discovery_service: ProjectDiscoveryService = Depends(get_discovery_service),
+    ) -> Project:
+        """Refresh project metadata by rescanning the directory."""
+        try:
+            # This would need to be implemented in the discovery service
+            # For now, we'll return an error
+>           raise HTTPException(
+                status_code=501,
+                detail="Project refresh not yet implemented"
+            )
+
+vault\api\projects.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Python313\Lib\unittest\mock.py:1169: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1173: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='HTTPException' id='2923876378208'>, args = ()
+kwargs = {'detail': 'Project refresh not yet implemented', 'status_code': 501}
+effect = Exception('Crash')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               Exception: Crash
+
+C:\Python313\Lib\unittest\mock.py:1228: Exception
+
+During handling of the above exception, another exception occurred:
+
+    @pytest.mark.asyncio
+    async def test_api_refresh_project_exception():
+        # Target Line 223
+        with patch("vault.api.projects.HTTPException", side_effect=Exception("Crash")):
+            with pytest.raises(HTTPException) as exc:
+>               await refresh_project(uuid4(), MagicMock())
+
+tests\test_coverage_final_push.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+project_id = UUID('b4970867-ccfc-4652-a5f7-4ece83e1064d')
+discovery_service = <MagicMock id='2923876378544'>
+
+    @router.post("/{project_id}/refresh", response_model=Project)
+    async def refresh_project(
+        project_id: UUID,
+        discovery_service: ProjectDiscoveryService = Depends(get_discovery_service),
+    ) -> Project:
+        """Refresh project metadata by rescanning the directory."""
+        try:
+            # This would need to be implemented in the discovery service
+            # For now, we'll return an error
+            raise HTTPException(
+                status_code=501,
+                detail="Project refresh not yet implemented"
+            )
+    
+>       except HTTPException:
+E       TypeError: catching classes that do not inherit from BaseException is not allowed
+
+vault\api\projects.py:221: TypeError
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.13.5-final-0 _______________
+
+Name                                 Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------
+vault\__init__.py                        3      0      0      0   100%
+vault\api\__init__.py                    5      0      0      0   100%
+vault\api\indexer.py                    80      0      6      0   100%
+vault\api\projects.py                  106      3     18      1    97%   79, 119->117, 223-224
+vault\api\schemas.py                   119      0      0      0   100%
+vault\api\symbols.py                   132      0     20      0   100%
+vault\config.py                         37      0      6      0   100%
+vault\crawler\__init__.py                4      0      0      0   100%
+vault\crawler\fingerprint.py           122      1     64      4    97%   161->154, 194, 218->221, 221->209
+vault\crawler\scanner.py               104      0     34      2    99%   24->27, 82->71
+vault\crawler\watcher.py               114      0     36      5    97%   24->exit, 29->exit, 34->exit, 39->exit, 112->exit
+vault\exceptions.py                     15      0      0      0   100%
+vault\main.py                           98      0     18      1    99%   271->exit
+vault\parser\__init__.py                 4      0      0      0   100%
+vault\parser\extractors.py             244      3    152     25    93%   98, 174->204, 180->204, 192->189, 193->192, 200->198, 201->200, 281->279, 282->281, 285, 349->361, 353->361, 428->427, 433->432, 434->432, 435->434, 438, 459->453, 480->453
+vault\parser\symbol_types.py            93      0     52      0   100%
+vault\parser\tree_sitter_parser.py     159      4     54      7    95%   85-86, 103->106, 161->159, 186->185, 189, 201, 300->299
+vault\storage\__init__.py                4      0      0      0   100%
+vault\storage\database.py               27      0      0      0   100%
+vault\storage\models.py                 71      0      0      0   100%
+vault\storage\repositories.py          116      1      8      1    98%   234
+--------------------------------------------------------------------------------
+TOTAL                                 1657     12    468     46    97%
+=========================== short test summary info ===========================
+FAILED tests/test_coverage_final_push.py::test_scanner_final_gaps - Assertion...
+FAILED tests/test_coverage_final_push.py::test_api_refresh_project_exception
+2 failed, 188 passed in 14.57s

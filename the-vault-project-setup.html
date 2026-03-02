@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Vault — Project Setup & Governance</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap');
+
+  :root {
+    --bg:       #07080c;
+    --bg2:      #0c0e14;
+    --bg3:      #10121a;
+    --bg4:      #141820;
+    --border:   #1a1f2e;
+    --border2:  #222840;
+    --text:     #bec8e0;
+    --dim:      #4e5a7a;
+    --dimmer:   #2a3048;
+    --white:    #e8eeff;
+    --gold:     #e8b84b;
+    --gold2:    #c49628;
+    --teal:     #3dd6b5;
+    --purple:   #7b68ee;
+    --red:      #e85858;
+    --amber:    #e8a832;
+    --green:    #3de8a0;
+    --blue:     #4a9eff;
+    --mono:     'IBM Plex Mono', monospace;
+    --head:     'Bricolage Grotesque', sans-serif;
+    --body:     'Newsreader', Georgia, serif;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15.5px;
+    line-height: 1.8;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; padding: 0 2.5rem 10rem; }
+
+  /* ─── COVER ─── */
+  .cover {
+    padding: 7rem 0 5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 5rem;
+    position: relative;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    top: 0; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(ellipse at center, rgba(232,184,75,0.04) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .stamp {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold2);
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+  }
+  h1 {
+    font-family: var(--head);
+    font-size: clamp(2.8rem, 6vw, 4.8rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  h1 em { font-style: normal; color: var(--gold); }
+  .cover-sub {
+    font-family: var(--body);
+    font-size: 1.1rem;
+    color: var(--dim);
+    max-width: 600px;
+    font-style: italic;
+    margin: 1.5rem 0 2.5rem;
+    line-height: 1.7;
+  }
+  .cover-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pill {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+  .pill-g { border-color: rgba(61,214,181,0.25); color: var(--teal); background: rgba(61,214,181,0.04); }
+  .pill-y { border-color: rgba(232,184,75,0.25); color: var(--gold); background: rgba(232,184,75,0.04); }
+
+  /* ─── SECTION ─── */
+  .section { margin-bottom: 6rem; }
+
+  .section-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: var(--head);
+    font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+  }
+
+  h3 {
+    font-family: var(--head);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #d0d8f0;
+    margin: 2.5rem 0 0.6rem;
+    letter-spacing: -0.01em;
+  }
+
+  h4 {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 2rem 0 0.75rem;
+  }
+
+  p { margin-bottom: 1.1rem; }
+
+  strong { color: var(--white); font-weight: 500; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    color: var(--teal);
+  }
+
+  /* ─── TOC ─── */
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 1.75rem 2rem;
+    margin-bottom: 5rem;
+  }
+  .toc-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--dimmer);
+    margin-bottom: 1.25rem;
+  }
+  .toc-list { list-style: none; }
+  .toc-list li {
+    padding: 0.22rem 0;
+    font-size: 0.9rem;
+    color: var(--dim);
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+  }
+  .toc-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--dimmer);
+    min-width: 2rem;
+  }
+  .toc-list li:hover { color: var(--text); }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    background: var(--bg3);
+    border-left: 3px solid var(--teal);
+    padding: 1.1rem 1.4rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1.75rem 0;
+    font-size: 0.94rem;
+    font-style: italic;
+    color: var(--text);
+  }
+  .callout-warn { border-color: var(--amber); }
+  .callout-gold { border-color: var(--gold); }
+  .callout strong { color: var(--teal); font-style: normal; font-family: var(--mono); font-size: 0.78rem; }
+  .callout-warn strong { color: var(--amber); }
+  .callout-gold strong { color: var(--gold); }
+
+  /* ─── FILE CODE BLOCKS ─── */
+  .file-block {
+    margin: 1.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .file-header {
+    background: var(--bg3);
+    padding: 0.6rem 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--dim);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .file-header .fname { color: var(--gold); }
+  .file-header .fpath { color: var(--dimmer); }
+  .file-body {
+    background: #060709;
+    padding: 1.25rem 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    line-height: 1.95;
+    color: #7a8aaa;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .file-body .c  { color: #2e3a50; }
+  .file-body .k  { color: var(--purple); }
+  .file-body .s  { color: var(--teal); }
+  .file-body .v  { color: var(--gold); }
+  .file-body .h  { color: var(--white); font-weight: 500; }
+  .file-body .em { color: var(--amber); }
+  .file-body .g  { color: var(--green); }
+  .file-body .r  { color: var(--red); }
+  .file-body .b  { color: var(--blue); }
+
+  /* ─── TREE ─── */
+  .tree {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 2.0;
+    color: var(--dim);
+    background: #060709;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tree .dir   { color: var(--gold); }
+  .tree .file  { color: #8fa4c4; }
+  .tree .note  { color: var(--dimmer); }
+  .tree .hi    { color: var(--teal); }
+  .tree .warn  { color: var(--amber); }
+
+  /* ─── BRANCH TABLE ─── */
+  .btable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin: 1.5rem 0;
+  }
+  .btable th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 0.5rem 1rem;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border2);
+    font-weight: 400;
+  }
+  .btable td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .btable tr:last-child td { border-bottom: none; }
+  .btable tr:hover td { background: rgba(255,255,255,0.012); }
+  .btable .bd { font-family: var(--mono); font-size: 0.78rem; color: var(--teal); }
+  .btable .bname { color: var(--gold); font-family: var(--mono); font-size: 0.75rem; }
+  .btable .bprot { font-size: 0.8rem; color: var(--amber); }
+
+  /* ─── STEP LIST ─── */
+  .steps { margin: 1.5rem 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--dimmer);
+    padding: 1.2rem 0 0;
+    border-right: 1px solid var(--border);
+  }
+  .step-body {
+    padding: 1rem 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .step:last-child .step-body { border-bottom: none; }
+  .step-body h3 { margin-top: 0; font-size: 1rem; }
+  .step-body p { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text); }
+
+  /* ─── TAG EXAMPLES ─── */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 3px;
+    border: 1px solid var(--border2);
+    color: var(--dim);
+  }
+  .tag-v { color: var(--green); border-color: rgba(61,232,160,0.2); background: rgba(61,232,160,0.04); }
+  .tag-p { color: var(--purple); border-color: rgba(123,104,238,0.2); background: rgba(123,104,238,0.04); }
+  .tag-a { color: var(--amber); border-color: rgba(232,168,50,0.2); background: rgba(232,168,50,0.04); }
+
+  /* ─── RULE CARD ─── */
+  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+  @media(max-width:620px){ .rule-grid{ grid-template-columns: 1fr; } }
+  .rule-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+  }
+  .rule-card h4 { margin: 0 0 0.5rem; font-size: 0.68rem; }
+  .rule-card p { font-size: 0.84rem; color: var(--dim); margin: 0; line-height: 1.6; }
+  .rule-card code { font-size: 0.75rem; }
+
+  /* ─── HR ─── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 4rem 0; }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    padding: 2.5rem 0;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--dimmer);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .footer span { color: var(--gold); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<header class="cover">
+  <div class="stamp">Engineering Governance · v1.0 · 2026</div>
+  <h1>Build <em>The Vault</em><br/>The Right Way</h1>
+  <p class="cover-sub">A complete guide to repo structure, branching strategy, AI assistant configuration, commit conventions, documentation standards, and project rules — designed to work with Cursor, Windsurf, Antigravity, and any future AI coding tool.</p>
+  <div class="cover-pills">
+    <span class="pill pill-g">GitHub Flow</span>
+    <span class="pill pill-g">Conventional Commits</span>
+    <span class="pill pill-g">Semantic Versioning</span>
+    <span class="pill pill-y">.cursorrules</span>
+    <span class="pill pill-y">.windsurfrules</span>
+    <span class="pill pill-y">AGENTS.md</span>
+    <span class="pill">Branch Protection</span>
+    <span class="pill">CI/CD</span>
+    <span class="pill">Docs as Code</span>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-label">Contents</div>
+  <ul class="toc-list">
+    <li><span class="toc-num">01</span>Repository Structure — The Root Layout</li>
+    <li><span class="toc-num">02</span>Branching Strategy — How Work Moves</li>
+    <li><span class="toc-num">03</span>Commit Convention — The Language of History</li>
+    <li><span class="toc-num">04</span>Versioning & Tagging — Marking Milestones</li>
+    <li><span class="toc-num">05</span>AI Assistant Configuration — Cursor · Windsurf · Antigravity</li>
+    <li><span class="toc-num">06</span>Documentation Files — What Goes Where and Why</li>
+    <li><span class="toc-num">07</span>GitHub Config — Branch Protection · PR Templates · Issues</li>
+    <li><span class="toc-num">08</span>CI/CD — Lightweight Automation for a Solo Project</li>
+    <li><span class="toc-num">09</span>The First Day Checklist — How to Start</li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 01 REPOSITORY STRUCTURE -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">01 — Foundation</div>
+  <h2>Repository Structure</h2>
+  <p>The root of the repo communicates the entire project to anyone — human or AI — in under ten seconds. Every file at the root level should have a clear, unambiguous purpose. Nothing accidental should live here.</p>
+
+  <div class="tree">
+<span class="dir">the-vault/</span>                           <span class="note"># Root — mono-repo, everything lives here</span>
+│
+├── <span class="dir">.github/</span>                          <span class="note"># GitHub metadata</span>
+│   ├── <span class="dir">ISSUE_TEMPLATE/</span>
+│   │   ├── <span class="file">bug_report.md</span>
+│   │   └── <span class="file">feature_request.md</span>
+│   ├── <span class="dir">workflows/</span>
+│   │   ├── <span class="file">ci.yml</span>               <span class="note"># Lint + test on push</span>
+│   │   └── <span class="file">release.yml</span>          <span class="note"># Tag → GitHub Release + changelog</span>
+│   └── <span class="file">PULL_REQUEST_TEMPLATE.md</span>
+│
+├── <span class="dir">backend/</span>                           <span class="note"># FastAPI (Python)</span>
+├── <span class="dir">frontend/</span>                          <span class="note"># Tauri + React (TypeScript)</span>
+├── <span class="dir">docs/</span>                              <span class="note"># All human-readable documentation</span>
+│   ├── <span class="file">architecture.md</span>              <span class="note"># System design narrative</span>
+│   ├── <span class="file">data-models.md</span>               <span class="note"># All models with field definitions</span>
+│   ├── <span class="file">api-reference.md</span>             <span class="note"># All API endpoints</span>
+│   ├── <span class="file">ai-prompts.md</span>                <span class="note"># All Ollama prompt templates</span>
+│   ├── <span class="file">decisions/</span>                   <span class="note"># ADRs — Architecture Decision Records</span>
+│   │   ├── <span class="file">001-tauri-vs-electron.md</span>
+│   │   ├── <span class="file">002-qdrant-vs-chroma.md</span>
+│   │   └── <span class="file">003-tree-sitter-parsers.md</span>
+│   └── <span class="file">setup.md</span>                     <span class="note"># Dev environment setup guide</span>
+│
+├── <span class="hi">AGENTS.md</span>                          <span class="note"># ← AI assistant master context file</span>
+├── <span class="hi">.cursorrules</span>                       <span class="note"># ← Cursor-specific rules</span>
+├── <span class="hi">.windsurfrules</span>                     <span class="note"># ← Windsurf-specific rules</span>
+├── <span class="hi">.antigravity</span>                       <span class="note"># ← Antigravity config (if applicable)</span>
+│
+├── <span class="file">README.md</span>                          <span class="note"># Project overview — first thing anyone reads</span>
+├── <span class="file">CHANGELOG.md</span>                       <span class="note"># Auto-generated from commits</span>
+├── <span class="file">CONTRIBUTING.md</span>                    <span class="note"># How to contribute (even if it's just you)</span>
+├── <span class="file">docker-compose.yml</span>                 <span class="note"># Qdrant container</span>
+└── <span class="file">.gitignore</span></div>
+
+  <div class="callout callout-gold">
+    <strong>KEY PRINCIPLE</strong> The highlighted files — <code>AGENTS.md</code>, <code>.cursorrules</code>, <code>.windsurfrules</code> — are not documentation. They are <em>active configuration</em> that shapes how your AI tools behave in every session. They are as important as your <code>pyproject.toml</code>.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 02 BRANCHING -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">02 — Git Workflow</div>
+  <h2>Branching Strategy</h2>
+  <p>For a solo project with phased delivery, a simplified GitHub Flow is the right choice. Gitflow is overkill here — it adds ceremony without benefit when there's one developer. The model is simple: <strong>main is always shippable. Everything else is a branch.</strong></p>
+
+  <table class="btable">
+    <thead>
+      <tr><th>Branch</th><th>Purpose</th><th>Protection</th><th>Merges Into</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="bname">main</td>
+        <td>Production-ready at all times. Tagged releases live here.</td>
+        <td class="bprot">✓ Protected · No direct push · PR required</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td class="bname">dev</td>
+        <td>Integration branch. Working but not necessarily polished. Where phases land before being promoted.</td>
+        <td class="bprot">✓ Protected · PR required</td>
+        <td>main (via PR + tag)</td>
+      </tr>
+      <tr>
+        <td class="bname">feat/scanner</td>
+        <td>Feature branches. One per feature/task. Short-lived — merge and delete.</td>
+        <td>—</td>
+        <td>dev</td>
+      </tr>
+      <tr>
+        <td class="bname">fix/qdrant-timeout</td>
+        <td>Bug fix branches. Same pattern as features.</td>
+        <td>—</td>
+        <td>dev (or main for hotfixes)</td>
+      </tr>
+      <tr>
+        <td class="bname">chore/update-deps</td>
+        <td>Non-feature work: dependency updates, config tweaks, refactors.</td>
+        <td>—</td>
+        <td>dev</td>
+      </tr>
+      <tr>
+        <td class="bname">docs/architecture-adr</td>
+        <td>Documentation-only changes. Can go straight to main via PR.</td>
+        <td>—</td>
+        <td>main or dev</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Branch Naming Convention</h3>
+  <div class="file-block">
+    <div class="file-header"><span class="fname">Branch name patterns</span></div>
+    <div class="file-body"><span class="c"># Format: &lt;type&gt;/&lt;short-kebab-description&gt;</span>
+
+<span class="g">feat/project-scanner</span>           <span class="c"># Phase 1 — the file crawler</span>
+<span class="g">feat/tree-sitter-parser-cs</span>      <span class="c"># C# symbol extractor</span>
+<span class="g">feat/ollama-doc-queue</span>           <span class="c"># Phase 3 — AI documentation generation</span>
+<span class="g">feat/qdrant-semantic-search</span>     <span class="c"># Phase 4 — vector search</span>
+<span class="g">feat/registry-ui</span>               <span class="c"># Frontend project grid</span>
+
+<span class="em">fix/watcher-missed-renames</span>      <span class="c"># Bugfix for watchdog rename events</span>
+<span class="em">fix/ollama-json-parse-failure</span>   <span class="c"># AI response parsing edge case</span>
+
+<span class="b">chore/bump-fastapi-0.115</span>        <span class="c"># Dependency update</span>
+<span class="b">chore/refactor-symbol-models</span>    <span class="c"># Internal cleanup</span>
+
+<span class="v">docs/adr-003-parser-choice</span>      <span class="c"># Architecture Decision Record</span></div>
+  </div>
+
+  <div class="callout callout-warn">
+    <strong>RULE</strong> Never commit directly to <code>main</code> or <code>dev</code>. Even working alone, the PR process forces you to review your own diff before merging — this catches more mistakes than any linter. AI assistants also produce better code when they know a review step is expected.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 03 COMMITS -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">03 — Commit Convention</div>
+  <h2>The Language of History</h2>
+  <p>Conventional Commits is the standard, and it matters here for two reasons: it makes <code>CHANGELOG.md</code> auto-generatable, and it gives your AI assistants context about what changed and why when they read your git log.</p>
+
+  <div class="file-block">
+    <div class="file-header"><span class="fname">Commit message format</span></div>
+    <div class="file-body"><span class="h">&lt;type&gt;(&lt;scope&gt;): &lt;short imperative description&gt;</span>
+
+<span class="c"># Optional body — explain WHY, not what (the diff shows what)</span>
+[blank line]
+[body — wrapped at 72 chars]
+
+<span class="c"># Optional footer — breaking changes, issue refs</span>
+[blank line]
+[BREAKING CHANGE: description]
+[Closes #42]</div>
+  </div>
+
+  <h3>Types</h3>
+  <table class="btable">
+    <thead><tr><th>Type</th><th>When to Use</th><th>Appears in Changelog?</th></tr></thead>
+    <tbody>
+      <tr><td class="bname">feat</td><td>New feature or capability</td><td class="bprot">✓ Yes — Features</td></tr>
+      <tr><td class="bname">fix</td><td>Bug fix</td><td class="bprot">✓ Yes — Bug Fixes</td></tr>
+      <tr><td class="bname">docs</td><td>Documentation changes only</td><td>No</td></tr>
+      <tr><td class="bname">chore</td><td>Build, tooling, deps, config</td><td>No</td></tr>
+      <tr><td class="bname">refactor</td><td>Code restructure, no behavior change</td><td>No</td></tr>
+      <tr><td class="bname">perf</td><td>Performance improvement</td><td class="bprot">✓ Yes — Performance</td></tr>
+      <tr><td class="bname">test</td><td>Adding or fixing tests</td><td>No</td></tr>
+      <tr><td class="bname">ci</td><td>CI/CD pipeline changes</td><td>No</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Scopes for The Vault</h3>
+  <p>Scopes are the part in parentheses — they narrow which subsystem changed. Agree on these upfront so they're consistent.</p>
+
+  <div class="file-block">
+    <div class="file-header"><span class="fname">Commit examples with scopes</span></div>
+    <div class="file-body"><span class="g">feat(crawler): add recursive directory scanner with exclusion rules</span>
+<span class="g">feat(parser): implement C# symbol extractor via tree-sitter</span>
+<span class="g">feat(parser): add Java parser for class and method symbols</span>
+<span class="g">feat(ai): wire Ollama doc generation queue with retry logic</span>
+<span class="g">feat(search): integrate Qdrant for semantic symbol search</span>
+<span class="g">feat(ui): add project registry grid with health color indicators</span>
+<span class="g">feat(ui): implement code viewer with AI docs panel</span>
+<span class="g">feat(graph): export .vault/graph.json knowledge graph</span>
+<span class="g">feat(api): add GET /refactor/seeds endpoint</span>
+
+<span class="em">fix(crawler): handle symlinks without infinite loop</span>
+<span class="em">fix(ai): gracefully handle ollama JSON parse failure</span>
+<span class="em">fix(parser): skip binary files misidentified as source</span>
+
+<span class="b">chore(deps): bump qdrant-client to 1.9.0</span>
+<span class="b">refactor(storage): split database.py into models and session modules</span>
+<span class="b">docs(adr): add decision record for tree-sitter vs regex parsing</span>
+
+<span class="c"># Breaking change example</span>
+<span class="r">feat(api)!: rename /index to /indexer for consistency
+
+BREAKING CHANGE: all clients must update endpoint from /index to /indexer
+Closes #18</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 04 VERSIONING -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">04 — Versioning & Tagging</div>
+  <h2>Marking Milestones</h2>
+  <p>Semantic Versioning (<strong>semver</strong>) tells anyone reading the tag exactly what changed. For The Vault, tags also correspond directly to completed build phases — so the history is human-readable even years later.</p>
+
+  <h3>SemVer Rules</h3>
+  <table class="btable">
+    <thead><tr><th>Version Part</th><th>When It Bumps</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td class="bd">MAJOR (x.0.0)</td><td>Breaking change — existing .vault/ files or APIs incompatible</td><td class="bname">2.0.0</td></tr>
+      <tr><td class="bd">MINOR (0.x.0)</td><td>New feature added, backward compatible</td><td class="bname">1.3.0</td></tr>
+      <tr><td class="bd">PATCH (0.0.x)</td><td>Bug fix, no new capability</td><td class="bname">1.3.1</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Phase-to-Tag Mapping</h3>
+  <div class="tag-row">
+    <span class="tag">v0.1.0-alpha</span>
+    <span class="tag tag-a">Phase 1 complete — scanner + symbol table</span>
+  </div>
+  <div class="tag-row">
+    <span class="tag">v0.2.0-alpha</span>
+    <span class="tag tag-a">Phase 2 complete — frontend registry, no AI yet</span>
+  </div>
+  <div class="tag-row">
+    <span class="tag">v0.3.0-beta</span>
+    <span class="tag tag-a">Phase 3 complete — Ollama docs live</span>
+  </div>
+  <div class="tag-row">
+    <span class="tag">v0.4.0-beta</span>
+    <span class="tag tag-a">Phase 4 complete — semantic search working</span>
+  </div>
+  <div class="tag-row">
+    <span class="tag tag-v">v1.0.0</span>
+    <span class="tag tag-v">Phase 5 complete — full featured, stable</span>
+  </div>
+  <div class="tag-row">
+    <span class="tag tag-p">v1.1.0</span>
+    <span class="tag tag-p">Knowledge Graph Export added</span>
+  </div>
+  <div class="tag-row">
+    <span class="tag tag-p">v1.2.0</span>
+    <span class="tag tag-p">Refactor Seed Scoring added</span>
+  </div>
+
+  <div class="file-block">
+    <div class="file-header"><span class="fname">Git tag commands</span></div>
+    <div class="file-body"><span class="c"># Always tag from main, never from dev</span>
+<span class="v">git checkout main</span>
+<span class="v">git pull origin main</span>
+
+<span class="c"># Create annotated tag (not lightweight — annotated has a message)</span>
+<span class="v">git tag -a v0.1.0-alpha -m "Phase 1: Scanner and symbol extractor complete"</span>
+
+<span class="c"># Push the tag to GitHub (triggers release workflow)</span>
+<span class="v">git push origin v0.1.0-alpha</span>
+
+<span class="c"># List all tags</span>
+<span class="v">git tag -l --sort=-v:refname</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 05 AI ASSISTANT CONFIG -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">05 — AI Assistant Configuration</div>
+  <h2>Teaching Your Tools</h2>
+  <p>This is the most important section if you're using Cursor, Windsurf, or Antigravity. These files are read at the start of every AI session and shape every suggestion the tool makes. A well-written config means you never have to re-explain the architecture. A missing or bad config means the AI invents things.</p>
+
+  <div class="callout callout-gold">
+    <strong>STRATEGY</strong> Write <code>AGENTS.md</code> first as the single source of truth — the full project context, architecture, conventions, and rules. Then each tool-specific file (<code>.cursorrules</code>, <code>.windsurfrules</code>) references AGENTS.md and adds only tool-specific overrides. You maintain one document, not three.
+  </div>
+
+  <h3>AGENTS.md — The Master Context File</h3>
+  <p>This is read by any AI agent that follows the emerging <code>AGENTS.md</code> convention (supported by Codex, many Cursor setups, and increasingly by other tools). It's also what you paste into a new chat when starting a session in Claude or any other AI.</p>
+
+  <div class="file-block">
+    <div class="file-header"><span class="fname">AGENTS.md</span> <span class="fpath">/ (repo root)</span></div>
+    <div class="file-body"><span class="h"># The Vault — Agent Context</span>
+
+<span class="h">## Project Identity</span>
+The Vault is a local-first, AI-powered code archaeology desktop application.
+It indexes personal development projects across multiple drives, generates
+AI documentation for every code symbol (class, method, enum, etc.) using a
+local Ollama instance, and provides semantic search across the entire history.
+
+<span class="h">## Tech Stack</span>
+- Backend:  FastAPI (Python 3.11+), SQLAlchemy, SQLite
+- AI:       Ollama (WSL2, RTX 3060 12GB) — Qwen2.5-Coder 7B Instruct
+- Vectors:  Qdrant (Docker) + nomic-embed-text for embeddings
+- Parser:   tree-sitter (Python bindings) — C#, Java, Python, JS, RenPy
+- Frontend: Tauri v2 + React 18 + TypeScript 5 + Tailwind CSS
+- Storage:  SQLite (metadata), Qdrant (vectors), .vault/*.json (AI doc cache)
+
+<span class="h">## Repository Structure</span>
+<span class="c">- backend/vault/         FastAPI application</span>
+<span class="c">- backend/vault/crawler/ File watcher and project scanner</span>
+<span class="c">- backend/vault/parser/  Tree-sitter symbol extraction</span>
+<span class="c">- backend/vault/ai/      Ollama client, doc generation queue</span>
+<span class="c">- backend/vault/storage/ SQLAlchemy models, Qdrant wrapper, JSON cache</span>
+<span class="c">- backend/vault/api/     FastAPI route handlers</span>
+<span class="c">- frontend/src/pages/    Tauri/React page components</span>
+<span class="c">- frontend/src/components/ Reusable UI components</span>
+<span class="c">- docs/                  Architecture docs, ADRs, API reference</span>
+
+<span class="h">## Architecture Rules — Never Violate These</span>
+1. The parser layer (tree-sitter) NEVER calls Ollama. These are separate layers.
+2. Ollama is called ONLY from backend/vault/ai/ — nowhere else.
+3. All file system access on the user's drives goes through the crawler module.
+4. The .vault/ hidden folder in each project is append-only. Never delete user files.
+5. All Qdrant operations go through storage/vector_store.py — never call Qdrant directly.
+6. FastAPI routes are thin — business logic lives in the service layer, not in routes.
+7. The frontend NEVER reads files directly — all data goes through the FastAPI API.
+
+<span class="h">## Coding Conventions</span>
+<span class="c">### Python (backend)</span>
+- Use type hints everywhere. No `Any` without a comment explaining why.
+- Async/await for all I/O — never blocking calls in async functions.
+- Pydantic v2 for all data validation and API schemas.
+- Error handling: use custom exception classes from vault/exceptions.py.
+- Logging: use structured logging via `structlog`, never print().
+- Tests: pytest, aim for coverage on parser and AI modules especially.
+
+<span class="c">### TypeScript (frontend)</span>
+- Strict mode enabled. No `any` without comment.
+- All API calls go through lib/api.ts — never raw fetch() in components.
+- Component props must be typed with interfaces, not inline types.
+- No business logic in components — hooks only.
+
+<span class="h">## Current Build Phase</span>
+<span class="c"># UPDATE THIS EVERY TIME YOU START A NEW PHASE</span>
+Phase: 1 — Scanner and Parser (no AI, no frontend yet)
+Active branch: feat/project-scanner
+Focus: backend/vault/crawler/ and backend/vault/parser/
+
+<span class="h">## Known Constraints</span>
+- Ollama runs in WSL2. The API endpoint is http://localhost:11434
+- Qdrant runs in Docker on port 6333.
+- Never suggest cloud APIs or external services — this is a 100% local tool.
+- RTX 3060 has 12GB VRAM. Recommended model: Qwen2.5-Coder:7b-instruct-q4_K_M
+
+<span class="h">## Design Decisions (see docs/decisions/ for full ADRs)</span>
+- Tauri over Electron: smaller binary, native file system access, Rust shell
+- Qdrant over ChromaDB: better performance, Docker-based, production-ready
+- Tree-sitter over regex: grammar-aware, handles nested structures, multi-language
+- SQLite over PostgreSQL: zero-config, file-based, perfect for local-first tools</div>
+  </div>
+
+  <h3>.cursorrules — Cursor-Specific Rules</h3>
+  <div class="file-block">
+    <div class="file-header"><span class="fname">.cursorrules</span> <span class="fpath">/ (repo root)</span></div>
+    <div class="file-body"><span class="c"># Cursor Rules for The Vault
+# Full project context is in AGENTS.md — read that first.</span>
+
+<span class="h">## Behavior</span>
+- Always read AGENTS.md before suggesting architectural changes.
+- When editing backend files, check that the change respects the layer separation in AGENTS.md.
+- When asked to add a feature, ask which phase it belongs to before writing code.
+- Prefer editing existing files over creating new ones unless a new module is clearly needed.
+- Always suggest tests alongside new functions.
+
+<span class="h">## Code Style — Python</span>
+- Maximum line length: 100 characters.
+- Imports: stdlib, then third-party, then local — separated by blank lines.
+- Use `from __future__ import annotations` at top of every Python file.
+- Docstrings: Google style, required for all public functions and classes.
+
+<span class="h">## Code Style — TypeScript</span>
+- Use named exports, never default exports (except for page components).
+- Tailwind classes: utility-first, no custom CSS unless Tailwind cannot do it.
+
+<span class="h">## Forbidden</span>
+- Do NOT suggest installing cloud SDKs (OpenAI, Anthropic, etc.)
+- Do NOT use subprocess or shell=True in Python code.
+- Do NOT use localStorage in the frontend — Tauri has its own storage API.
+- Do NOT add dependencies without explaining why the existing stack cannot handle it.
+
+<span class="h">## When Unsure</span>
+Ask. Do not guess at architecture decisions. Refer to docs/decisions/ ADRs.</div>
+  </div>
+
+  <h3>.windsurfrules — Windsurf-Specific Rules</h3>
+  <div class="file-block">
+    <div class="file-header"><span class="fname">.windsurfrules</span> <span class="fpath">/ (repo root)</span></div>
+    <div class="file-body"><span class="c"># Windsurf Rules for The Vault
+# Full context: AGENTS.md. Architecture decisions: docs/decisions/</span>
+
+<span class="h">## Cascade Behavior</span>
+- Before any multi-file edit, state which files will be touched and why.
+- Respect the layer architecture from AGENTS.md. Parser never calls AI. Routes are thin.
+- When generating new API endpoints, always generate the corresponding Pydantic schema.
+- When editing the frontend, always generate the corresponding TypeScript type in lib/types.ts.
+
+<span class="h">## Flow Rules</span>
+- Complete one logical change at a time. Do not refactor while adding features.
+- If a change requires touching more than 5 files, pause and describe the plan first.
+- Always run the affected test suite mentally before suggesting the change.
+
+<span class="h">## Style</span>
+Same as .cursorrules — Google docstrings, Pydantic v2, typed hooks, named exports.
+
+<span class="h">## Forbidden</span>
+Same as .cursorrules. No cloud APIs. No subprocess shell=True. No localStorage.</div>
+  </div>
+
+  <div class="callout">
+    Antigravity and other tools typically look for <code>AGENTS.md</code> or a tool-specific config file. Check the tool's documentation for the exact filename. The content strategy is the same: point to <code>AGENTS.md</code> for the full context, add only tool-specific behavior rules in the tool file.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 06 DOCUMENTATION FILES -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">06 — Docs as Infrastructure</div>
+  <h2>Documentation Files</h2>
+  <p>Documentation in a project like this serves two audiences simultaneously: you (the human returning after two weeks away) and the AI assistant (starting fresh every session). Writing for both is the same act — be precise, be explicit, assume nothing is obvious.</p>
+
+  <h3>Architecture Decision Records (ADRs)</h3>
+  <p>Every time you make a significant architectural choice — choosing Qdrant over ChromaDB, Tauri over Electron, tree-sitter over regex — write an ADR. These prevent you and your AI tools from revisiting the same decisions repeatedly. The format is intentionally brief.</p>
+
+  <div class="file-block">
+    <div class="file-header"><span class="fname">docs/decisions/002-qdrant-vs-chroma.md</span> <span class="fpath">— ADR template</span></div>
+    <div class="file-body"><span class="h"># ADR-002: Qdrant over ChromaDB for Vector Storage</span>
+
+<span class="h">## Status</span>
+Accepted — 2026-03-01
+
+<span class="h">## Context</span>
+The Vault needs a local vector store for semantic search across code symbol
+embeddings. Two main candidates: Qdrant and ChromaDB. Both run locally.
+
+<span class="h">## Decision</span>
+Use Qdrant, deployed via Docker on port 6333.
+
+<span class="h">## Reasons</span>
+- Qdrant has a stable REST API that works well from Python and TypeScript.
+- Better performance at the scale we expect (50k–500k vectors).
+- Docker-based — no Python version conflicts with the backend environment.
+- ChromaDB has had API stability issues across minor versions.
+
+<span class="h">## Consequences</span>
+- Requires Docker to be running for the full app to work.
+- Added docker-compose.yml to manage the Qdrant container.
+- All vector operations must go through storage/vector_store.py to allow
+  future backend swap without touching business logic.</div>
+  </div>
+
+  <h3>The Files and What They're For</h3>
+  <div class="rule-grid">
+    <div class="rule-card">
+      <h4>README.md</h4>
+      <p>What the project does, why it exists, how to set it up, a screenshot or diagram. The first file anyone reads. Keep it current — an outdated README is worse than none.</p>
+    </div>
+    <div class="rule-card">
+      <h4>AGENTS.md</h4>
+      <p>The complete AI context file. Architecture, rules, current phase, known constraints. Updated at the start of every new phase. The most important file in the repo for AI-assisted development.</p>
+    </div>
+    <div class="rule-card">
+      <h4>CHANGELOG.md</h4>
+      <p>Auto-generated from conventional commits using <code>git-cliff</code> or <code>standard-version</code>. Never written by hand. Updated automatically on each tag. The human-readable history of what changed.</p>
+    </div>
+    <div class="rule-card">
+      <h4>CONTRIBUTING.md</h4>
+      <p>How to contribute — even if it's just you. Documents the branch naming convention, commit format, PR process, and where to put docs. Makes your own rules explicit so you follow them.</p>
+    </div>
+    <div class="rule-card">
+      <h4>docs/architecture.md</h4>
+      <p>The system design narrative. The ASCII architecture diagram from the design spec lives here. Updated when the architecture changes. This is what you paste into a new AI session when AGENTS.md isn't enough.</p>
+    </div>
+    <div class="rule-card">
+      <h4>docs/decisions/*.md</h4>
+      <p>Architecture Decision Records. One file per major decision. The <em>why</em> behind every architectural choice. Prevents relitigating the same decisions when you return or when an AI tool suggests a "better" alternative you already considered.</p>
+    </div>
+    <div class="rule-card">
+      <h4>docs/api-reference.md</h4>
+      <p>All API endpoints documented: path, method, request schema, response schema, example. Kept in sync with the FastAPI code. Can also be auto-generated from FastAPI's OpenAPI output.</p>
+    </div>
+    <div class="rule-card">
+      <h4>docs/ai-prompts.md</h4>
+      <p>All Ollama prompt templates used by the app. Version-controlled because prompts are code — they directly determine output quality and should be treated with the same rigor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 07 GITHUB CONFIG -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">07 — GitHub Configuration</div>
+  <h2>Branch Protection & PR Templates</h2>
+
+  <h3>Branch Protection Rules (configure in GitHub Settings)</h3>
+  <table class="btable">
+    <thead><tr><th>Branch</th><th>Rule</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td class="bname">main</td><td>Require PR. No direct push. Require status checks to pass.</td><td>Main is always shippable. Force a review step even when solo.</td></tr>
+      <tr><td class="bname">dev</td><td>Require PR. No direct push.</td><td>Prevents accidental force-push during AI-assisted sessions.</td></tr>
+      <tr><td class="bname">main + dev</td><td>Delete branch after merge.</td><td>Keeps the branch list clean. Feature branches are short-lived by design.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Pull Request Template</h3>
+  <div class="file-block">
+    <div class="file-header"><span class="fname">.github/PULL_REQUEST_TEMPLATE.md</span></div>
+    <div class="file-body"><span class="h">## What does this PR do?</span>
+&lt;!-- One paragraph. What changed and why. --&gt;
+
+<span class="h">## Type of change</span>
+- [ ] feat — new feature
+- [ ] fix — bug fix
+- [ ] refactor — internal restructure
+- [ ] docs — documentation only
+- [ ] chore — deps, tooling, config
+
+<span class="h">## Phase</span>
+Phase: &lt;1 | 2 | 3 | 4 | 5 | nice-to-have | dream&gt;
+
+<span class="h">## Checklist</span>
+- [ ] AGENTS.md updated if architecture changed
+- [ ] Docs updated if new API endpoints added
+- [ ] ADR written if a significant decision was made
+- [ ] Tests added for new logic
+- [ ] Conventional commit format followed
+
+<span class="h">## Testing</span>
+&lt;!-- How was this tested? Even for solo — note if you ran it manually. --&gt;</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 08 CI/CD -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">08 — Automation</div>
+  <h2>CI/CD — Lightweight but Real</h2>
+  <p>Two workflows. That's all you need for a solo project. One that runs on every push, one that runs on every tag. Don't over-engineer this.</p>
+
+  <div class="file-block">
+    <div class="file-header"><span class="fname">.github/workflows/ci.yml</span> <span class="fpath">— Runs on every push and PR</span></div>
+    <div class="file-body"><span class="k">name:</span> <span class="s">CI</span>
+<span class="k">on:</span>
+  <span class="k">push:</span>
+    <span class="k">branches:</span> [<span class="s">main, dev</span>]
+  <span class="k">pull_request:</span>
+    <span class="k">branches:</span> [<span class="s">main, dev</span>]
+
+<span class="k">jobs:</span>
+  <span class="k">backend:</span>
+    <span class="k">runs-on:</span> <span class="s">ubuntu-latest</span>
+    <span class="k">steps:</span>
+      - <span class="k">uses:</span> <span class="s">actions/checkout@v4</span>
+      - <span class="k">uses:</span> <span class="s">actions/setup-python@v5</span>
+        <span class="k">with:</span>
+          <span class="k">python-version:</span> <span class="s">'3.11'</span>
+      - <span class="k">run:</span> <span class="s">pip install -e ".[dev]"</span>
+        <span class="k">working-directory:</span> <span class="s">backend</span>
+      - <span class="k">name:</span> <span class="s">Lint (ruff)</span>
+        <span class="k">run:</span> <span class="s">ruff check .</span>
+        <span class="k">working-directory:</span> <span class="s">backend</span>
+      - <span class="k">name:</span> <span class="s">Type check (mypy)</span>
+        <span class="k">run:</span> <span class="s">mypy vault/</span>
+        <span class="k">working-directory:</span> <span class="s">backend</span>
+      - <span class="k">name:</span> <span class="s">Tests (pytest)</span>
+        <span class="k">run:</span> <span class="s">pytest tests/ -v</span>
+        <span class="k">working-directory:</span> <span class="s">backend</span>
+
+  <span class="k">frontend:</span>
+    <span class="k">runs-on:</span> <span class="s">ubuntu-latest</span>
+    <span class="k">steps:</span>
+      - <span class="k">uses:</span> <span class="s">actions/checkout@v4</span>
+      - <span class="k">uses:</span> <span class="s">actions/setup-node@v4</span>
+        <span class="k">with:</span>
+          <span class="k">node-version:</span> <span class="s">'20'</span>
+      - <span class="k">run:</span> <span class="s">npm ci</span>
+        <span class="k">working-directory:</span> <span class="s">frontend</span>
+      - <span class="k">name:</span> <span class="s">Type check (tsc)</span>
+        <span class="k">run:</span> <span class="s">npx tsc --noEmit</span>
+        <span class="k">working-directory:</span> <span class="s">frontend</span>
+      - <span class="k">name:</span> <span class="s">Lint (eslint)</span>
+        <span class="k">run:</span> <span class="s">npm run lint</span>
+        <span class="k">working-directory:</span> <span class="s">frontend</span></div>
+  </div>
+
+  <div class="file-block">
+    <div class="file-header"><span class="fname">.github/workflows/release.yml</span> <span class="fpath">— Runs on every version tag push</span></div>
+    <div class="file-body"><span class="k">name:</span> <span class="s">Release</span>
+<span class="k">on:</span>
+  <span class="k">push:</span>
+    <span class="k">tags:</span>
+      - <span class="s">'v*'</span>
+
+<span class="k">jobs:</span>
+  <span class="k">release:</span>
+    <span class="k">runs-on:</span> <span class="s">ubuntu-latest</span>
+    <span class="k">steps:</span>
+      - <span class="k">uses:</span> <span class="s">actions/checkout@v4</span>
+        <span class="k">with:</span>
+          <span class="k">fetch-depth:</span> <span class="s">0</span>   <span class="c"># Full history for changelog generation</span>
+
+      - <span class="k">name:</span> <span class="s">Generate Changelog (git-cliff)</span>
+        <span class="k">uses:</span> <span class="s">orhun/git-cliff-action@v3</span>
+        <span class="k">with:</span>
+          <span class="k">config:</span> <span class="s">cliff.toml</span>
+          <span class="k">args:</span> <span class="s">--latest --strip header</span>
+        <span class="k">id:</span> <span class="s">changelog</span>
+
+      - <span class="k">name:</span> <span class="s">Create GitHub Release</span>
+        <span class="k">uses:</span> <span class="s">softprops/action-gh-release@v2</span>
+        <span class="k">with:</span>
+          <span class="k">body:</span> <span class="s">${{ steps.changelog.outputs.content }}</span>
+          <span class="k">draft:</span> <span class="s">false</span>
+          <span class="k">prerelease:</span> <span class="s">${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 09 FIRST DAY CHECKLIST -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-eyebrow">09 — Getting Started</div>
+  <h2>The First Day Checklist</h2>
+  <p>Do these in order. Each step is a prerequisite for the next.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <h3>Create the GitHub Repository</h3>
+        <p>Name: <code>the-vault</code>. Private (for now). Initialize with a README. Do not let GitHub create a <code>.gitignore</code> — you'll write a precise one. Clone it locally.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <h3>Create the Root Structure</h3>
+        <p>Create <code>backend/</code>, <code>frontend/</code>, <code>docs/</code>, <code>docs/decisions/</code>, <code>.github/workflows/</code>, <code>.github/ISSUE_TEMPLATE/</code>. Commit empty <code>.gitkeep</code> files to preserve the directories.</p>
+        <div class="file-block" style="margin-top:0.75rem">
+          <div class="file-header"><span class="fname">Quick scaffold command</span></div>
+          <div class="file-body"><span class="v">mkdir -p backend frontend docs/decisions .github/workflows .github/ISSUE_TEMPLATE</span>
+<span class="v">touch .github/workflows/ci.yml .github/workflows/release.yml</span>
+<span class="v">touch AGENTS.md .cursorrules .windsurfrules CHANGELOG.md CONTRIBUTING.md</span>
+<span class="v">git add . && git commit -m "chore: initialize repository structure"</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <h3>Write AGENTS.md First</h3>
+        <p>Before touching any code. Use the template from Section 05 of this document. Fill in the Current Build Phase section to say <em>Phase 1 — Scanner and Parser</em>. This is the document that will ground every AI session.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <h3>Write .cursorrules and .windsurfrules</h3>
+        <p>Use the templates from Section 05. These reference AGENTS.md so they stay light. Commit both files on <code>main</code> before starting feature branches.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-body">
+        <h3>Configure Branch Protection</h3>
+        <p>In GitHub → Settings → Branches: add protection rules for <code>main</code> and <code>dev</code>. Require pull requests. Enable "Delete branch on merge".</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">06</div>
+      <div class="step-body">
+        <h3>Create the dev Branch</h3>
+        <p><code>git checkout -b dev && git push origin dev</code>. Set it as the default branch for PRs in GitHub Settings.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">07</div>
+      <div class="step-body">
+        <h3>Write ADR-001: The Architecture Decision</h3>
+        <p>Document the core technology choices as <code>docs/decisions/001-core-stack.md</code>. Reference the design specification. This is your "why we built it this way" that prevents future second-guessing.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">08</div>
+      <div class="step-body">
+        <h3>Open Your First Feature Branch</h3>
+        <p><code>git checkout dev && git checkout -b feat/project-scanner</code>. You are now ready to write Phase 1. Every future work item follows this same branch → PR → merge flow.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">09</div>
+      <div class="step-body">
+        <h3>Update AGENTS.md at Every Phase Boundary</h3>
+        <p>When Phase 1 is complete and merged, update the <em>Current Build Phase</em> section in <code>AGENTS.md</code> before opening the first Phase 2 branch. This single habit ensures your AI tools always have accurate context about where you are in the build.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-gold">
+    <strong>THE GOLDEN RULE</strong> The most expensive mistake in AI-assisted development is starting to code before the governance files exist. An AI tool without <code>AGENTS.md</code> is a very capable stranger who doesn't know your codebase, your conventions, or your decisions. Write the rules first, then open Cursor.
+  </div>
+</section>
+
+<hr/>
+
+<footer class="footer">
+  <div>The Vault — Engineering Governance Guide · v1.0 · 2026</div>
+  <div>Author <span>J0571N</span> · Local-first · Zero cloud dependency</div>
+</footer>
+
+</div>
+</body>
+</html>

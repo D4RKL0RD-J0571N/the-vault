@@ -1,0 +1,15 @@
+[run]
+source = vault
+branch = True
+concurrency = multiprocessing, thread, greenlet
+
+[report]
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
