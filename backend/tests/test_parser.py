@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 from uuid import uuid4
 
-from vault.exceptions import ParsingError
 from vault.parser.extractors import (
     CSharpExtractor,
     JavaExtractor,
@@ -13,8 +12,18 @@ from vault.parser.extractors import (
     RenPyExtractor,
     get_extractor,
 )
+from vault.exceptions import ParsingError
 from vault.parser.symbol_types import SymbolType
 from vault.storage.models import Symbol
+
+
+def skip_if_parser_unavailable(extractor_class, language_name: str):
+    """Skip test if the tree-sitter parser for the language is not available."""
+    try:
+        extractor_class()
+    except ParsingError as e:
+        if f"tree_sitter_{language_name}" in str(e):
+            pytest.skip(f"{language_name.title()} tree-sitter parser not available in CI environment")
 
 
 class TestCSharpExtractor:
@@ -22,6 +31,8 @@ class TestCSharpExtractor:
     
     def test_extract_class_symbols(self, temp_project_dir: Path, csharp_sample_files: dict[str, str]):
         """Test extracting C# class symbols."""
+        skip_if_parser_unavailable(CSharpExtractor, "csharp")
+        
         # Create test file
         test_file = temp_project_dir / "TestClass.cs"
         test_file.write_text(csharp_sample_files["TestClass.cs"])
@@ -94,6 +105,8 @@ class TestJavaExtractor:
     
     def test_extract_class_symbols(self, temp_project_dir: Path, java_sample_files: dict[str, str]):
         """Test extracting Java class symbols."""
+        skip_if_parser_unavailable(JavaExtractor, "java")
+        
         test_file = temp_project_dir / "TestClass.java"
         test_file.write_text(java_sample_files["TestClass.java"])
         
@@ -148,6 +161,7 @@ class TestPythonExtractor:
     
     def test_extract_class_symbols(self, temp_project_dir: Path, python_sample_files: dict[str, str]):
         """Test extracting Python class symbols."""
+        skip_if_parser_unavailable(PythonExtractor, "python")
         test_file = temp_project_dir / "test_class.py"
         test_file.write_text(python_sample_files["test_class.py"])
         
@@ -190,6 +204,7 @@ class TestJavaScriptExtractor:
     
     def test_extract_class_symbols(self, temp_project_dir: Path, javascript_sample_files: dict[str, str]):
         """Test extracting JavaScript class symbols."""
+        skip_if_parser_unavailable(JavaScriptExtractor, "javascript")
         test_file = temp_project_dir / "TestClass.js"
         test_file.write_text(javascript_sample_files["TestClass.js"])
         

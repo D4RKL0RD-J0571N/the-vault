@@ -3,7 +3,7 @@
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from vault.config import settings
@@ -190,7 +190,7 @@ class ProjectDiscoveryService:
         """Get statistics about all discovered projects."""
         all_projects = await self.project_repo.get_all(limit=10000)  # Large limit
 
-        stats: dict[str, object] = {
+        stats: Dict[str, Any] = {
             "total_projects": len(all_projects),
             "by_type": {},
             "by_status": {},
